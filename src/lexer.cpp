@@ -41,7 +41,20 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
       tokens.push_back(Token(TokenType::CLOSE_PARENT, ")"));
     } else if (c == '=') {
       tokens.push_back(Token(TokenType::EQUAL, "="));
-    } else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%') {
+    } else if (c == '"') {
+      std::string str = "";
+      str += c;
+      file.get(c);
+
+      while (file.peek() != EOF && c != '"') {
+        str += c;
+        file.get(c);
+      }
+
+      str += c;
+
+      tokens.push_back(Token(TokenType::STRING, str));
+    }  else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%') {
       std::string op; op += c;
       tokens.push_back(Token(TokenType::BINARY_OP, op));
     } else if (std::isdigit(c)) {
@@ -78,7 +91,7 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
         tokens.push_back(Token(TokenType::IDENTIFIER, ident));
       }
     } else {
-      Log::err("(lexical error) Unrecognized character: ", c);
+      Log::err("Unrecognized character: ", c);
     }
   }
 

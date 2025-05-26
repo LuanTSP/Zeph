@@ -5,6 +5,7 @@ enum TokenType {
   END_OF_FILE,
   IDENTIFIER,
   NUMBER,
+  STRING,
   EQUAL,
   LET,
   CONST,
@@ -18,6 +19,7 @@ enum TokenType {
   CLOSE_PARENT,
   COMMA,
   DOT,
+  DOUBLE_QUOTES,
 };
 
 struct Token {

@@ -58,9 +58,24 @@ Program Parser::parse(std::string filepath) {
 };
 
 Expression* Parser::parsePrimary() {
-  Token token = expect(TokenType::NUMBER, "Expected a 'NUMBER' token");
+  TokenType type = peak().type;
 
-  return new NumericLiteral(token.value);
+  
+  if (type == TokenType::NUMBER) return new NumericLiteral(eat().value);
+  else if (type == TokenType::IDENTIFIER) return new Identifier(eat().value);
+  else if (type == TokenType::OPEN_PARENT) {
+    eat(); // consume parenthesis
+
+    auto value = parseExpression();
+    expect(TokenType::CLOSE_PARENT, "Expected ')' closing the expression");
+    
+    return value;
+  } else {
+    Log::err("Unexpected token found during parsing: ", type);
+    
+    // BUG ??
+    return nullptr;
+  }
 }
 
 Expression* Parser::parseExpression(int minPrec) {
