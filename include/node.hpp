@@ -6,15 +6,16 @@ enum NodeType {
   // Statements
   PROGRAM,
   // Expressions
-  BINARY_EXPRESSIONS,
+  BINARY_EXPRESSION,
   // Literals
-  NUMERIC_LITERALS,
+  NUMERIC_LITERAL,
   IDENT,
 };
 
 
 // Statements do not result in values at runtime
 struct Statement {
+  public:
   NodeType type;
 
   Statement(NodeType t) : type(t) {}
@@ -22,10 +23,10 @@ struct Statement {
 };
 
 struct Program : Statement {
-  std::vector<Statement> body;
-  
   public:
-  Program(std::vector<Statement> body) : Statement(NodeType::PROGRAM), body(body) {}
+  std::vector<Statement*> body;
+  
+  Program(std::vector<Statement*> body) : Statement(NodeType::PROGRAM), body(body) {}
 };
 
 // Expressions result in values at runtime
@@ -34,23 +35,24 @@ struct Expression : Statement {
 };
 
 struct Identifier : Expression {
+  public:
   std::string symbol;
   
-  public:
   Identifier(std::string symbol) : Expression(NodeType::IDENT), symbol(symbol) {};
 };
 
-struct BinaryExpression : Expression {
-  std::string op;
-  Expression left;
-  Expression right;
-  
+struct NumericLiteral : Expression {
   public:
-  BinaryExpression(std::string op, Expression left, Expression right) : 
-  Expression(NodeType::BINARY_EXPRESSIONS), 
-  op(op), 
-  left(left), 
-  right(right) 
-  {};
+  std::string value;
+  
+  NumericLiteral(std::string value) : Expression(NodeType::NUMERIC_LITERAL), value(value) {};
 };
 
+struct BinaryExpression : Expression {
+  public:
+  std::string op;
+  Expression *left;
+  Expression *right;
+
+  BinaryExpression(std::string op, Expression *left, Expression *right) : Expression(NodeType::BINARY_EXPRESSION), left(left), right(right), op(op) {};
+};

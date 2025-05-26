@@ -16,5 +16,5 @@ int main(int argc, char* argv[]) {
 
   Parser parser = Parser();
   Program program = parser.parse(filepath);
-  Log::log("Program:\n type: ", program.type, "\n body: ");
+  Log::printAST(program);
 }

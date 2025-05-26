@@ -24,19 +24,66 @@ Token Parser::expect(TokenType tokenType, const char* errorMessage) {
   return token;
 };
 
+Token Parser::expect(TokenType tokenType, std::string errorMessage) {
+  if (this->tokens.front().type != tokenType) {
+    Log::err(errorMessage);
+  }
+  // eat and retur token
+  Token token = this->tokens.front();
+  this->tokens.erase(this->tokens.begin());
+  return token;
+};
+
 Program Parser::parse(std::string filepath) {
   Lexer lexer = Lexer();
   this->tokens = lexer.tokenize(filepath);
-  Log::log("Parsing...");
 
-  std::vector<Statement> body;
+  // DEBUG
+  Log::log("TOKENS");
+  for (auto token : tokens) {
+    Log::log("{", token.type, " ,", token.value, "}");
+  }
+  // END DEBUG
 
-  // while (peak().type != TokenType::END_OF_FILE) {
-  //   auto tk = eat();
-  //   Log::log(tk.type, " ", tk.value, " ", tokens.size());
-  // }
+  std::vector<Statement*> body;
 
   // Create program
   Program program = Program(body);
+
+  while(peak().type != TokenType::END_OF_FILE) {
+    program.body.push_back(parseExpression());
+  }
+  
   return program;
 };
+
+Expression* Parser::parsePrimary() {
+  Token token = expect(TokenType::NUMBER, "Expected a 'NUMBER' token");
+
+  return new NumericLiteral(token.value);
+}
+
+Expression* Parser::parseExpression(int minPrec) {
+  auto left = parsePrimary();
+
+  while(peak().type != TokenType::END_OF_FILE && peak().type == TokenType::BINARY_OP) {
+    // Determine precedence of operator
+    int precedence;
+    std::string op = peak().value;
+    if (op == "+" || op == "-") precedence = 0;
+    else if (op == "*" || op == "/" || op == "%") precedence = 1;
+    else Log::err("Non recognized operation: ", op);
+
+    if (precedence < minPrec) {
+      break;
+    }
+
+    eat();
+
+    auto right = parseExpression(precedence + 1);
+
+    left = new BinaryExpression(op, left, right);
+  }
+
+  return left;
+}

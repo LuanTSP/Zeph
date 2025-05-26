@@ -1,4 +1,1 @@
-# Esse é um comentário
-def teste(x, y) { # Esse é outro
-  return x + y
-}
+2 + 3 * 4 / 5

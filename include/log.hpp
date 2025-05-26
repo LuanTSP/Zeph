@@ -1,9 +1,9 @@
 #pragma once
 #include <iostream>
+#include "node.hpp"
 
 class Log {
 public:
-
   // Logging
   template <typename... Args> static void log(Args &&...args) {
     (std::cout << ... << args) << std::endl;
@@ -18,5 +18,54 @@ public:
   template <typename... Args> static void info(Args &&...args) {
     std::cout << "[INFO]: ";
     (std::cout << ... << args) << std::endl;
+  }
+
+  static void printAST(const Statement* node, int indent = 0) {
+    if (!node) return;
+
+    auto printIndent = [indent]() {
+      for (int i = 0; i < indent; ++i) std::cout << "   ";
+    };
+
+    switch (node->type) {
+      case NodeType::PROGRAM: {
+        auto program = dynamic_cast<const Program*>(node);
+        printIndent();
+        log("Program:");
+        for (const auto& stmt : program->body) {
+          printAST(stmt, indent + 1);
+        }
+        break;
+      }
+      case NodeType::IDENT: {
+        auto ident = dynamic_cast<const Identifier*>(node);
+        printIndent();
+        log("Identifier: ", ident->symbol);
+        break;
+      }
+      case NodeType::NUMERIC_LITERAL: {
+        auto num = dynamic_cast<const NumericLiteral*>(node);
+        printIndent();
+        log("NumericLiteral: ", num->value);
+        break;
+      }
+      case NodeType::BINARY_EXPRESSION: {
+        auto bin = dynamic_cast<const BinaryExpression*>(node);
+        printIndent();
+        log("BinaryExpression: ", bin->op);
+        printAST(bin->left, indent + 1);
+        printAST(bin->right, indent + 1);
+        break;
+      }
+      default:
+        printIndent();
+        log("Unknown Node Type");
+        break;
+    }
+  }
+
+  static void printAST(const Program& program) {
+    log("\nAST");
+    printAST(&program);
   }
 };
