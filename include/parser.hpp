@@ -15,4 +15,5 @@ class Parser {
   Token eat();
   Token expect(TokenType tokenType, const char* errorMessage);
   Program parse(std::string filepath);
+  
 };

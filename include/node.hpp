@@ -12,6 +12,7 @@ enum NodeType {
   IDENT,
 };
 
+
 // Statements do not result in values at runtime
 struct Statement {
   NodeType type;
