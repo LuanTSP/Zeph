@@ -3,6 +3,7 @@
 
 enum TokenType {
   END_OF_FILE,
+  NEW_LINE,
   IDENTIFIER,
   NUMBER,
   STRING,

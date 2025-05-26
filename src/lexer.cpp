@@ -18,8 +18,13 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
 
   char c;
   while (file.get(c)) {
-    if (isspace(c)) {
-      // Check for whitespaces
+    if (c == '\n') {
+      // Check for newline token before check for white spaces
+      tokens.push_back(Token(TokenType::NEW_LINE, "<new line>"));
+      continue;
+    }
+    else if (isspace(c)) {
+      // Check for white spaces
       continue;
     } else if (c == '#') {
       // Check for comments
@@ -43,15 +48,12 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
       tokens.push_back(Token(TokenType::EQUAL, "="));
     } else if (c == '"') {
       std::string str = "";
-      str += c;
-      file.get(c);
-
+      file.get(c); // advance "
+      
       while (file.peek() != EOF && c != '"') {
         str += c;
         file.get(c);
       }
-
-      str += c;
 
       tokens.push_back(Token(TokenType::STRING, str));
     }  else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%') {

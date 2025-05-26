@@ -31,30 +31,53 @@ public:
       case NodeType::PROGRAM: {
         auto program = dynamic_cast<const Program*>(node);
         printIndent();
-        log("Program:");
+        log("Program: {");
         for (const auto& stmt : program->body) {
           printAST(stmt, indent + 1);
         }
+        printIndent();
+        log("}");
         break;
       }
-      case NodeType::IDENT: {
+      case NodeType::VAR_DECLARATION: {
+        auto declaration = dynamic_cast<const VarDeclaration*>(node);
+        printIndent();
+        log("VarDeclaration: ", declaration->symbol, " {");
+        printIndent(); printIndent();
+        log("symbol: { ", declaration->symbol, " }");
+        printIndent(); printIndent();
+        log("constant: { ", declaration->isConstant, " }");
+        printAST(declaration->value, indent + 1);
+        printIndent();
+        log("}");
+        break;
+      }
+      case NodeType::IDENTIFIER_LITERAL: {
         auto ident = dynamic_cast<const Identifier*>(node);
         printIndent();
-        log("Identifier: ", ident->symbol);
+        log("Identifier: { ", ident->symbol, " }");
         break;
       }
       case NodeType::NUMERIC_LITERAL: {
         auto num = dynamic_cast<const NumericLiteral*>(node);
         printIndent();
-        log("NumericLiteral: ", num->value);
+        log("NumericLiteral: { ", num->value, " }");
         break;
       }
       case NodeType::BINARY_EXPRESSION: {
         auto bin = dynamic_cast<const BinaryExpression*>(node);
         printIndent();
-        log("BinaryExpression: ", bin->op);
+        log("BinaryExpression: ", bin->op, " {");
         printAST(bin->left, indent + 1);
         printAST(bin->right, indent + 1);
+        printIndent();
+        log("}");
+        break;
+      }
+      case NodeType::STRING_LITERAL: {
+        auto str = dynamic_cast<const StringLiteral*>(node);
+        printIndent();
+        log("StringLiteral: { ", str->value, " }");
         break;
       }
       default:

@@ -1,9 +1,13 @@
 #include "../include/parser.hpp"
 #include "../include/log.hpp"
 #include "../include/lexer.hpp"
+#include "../include/node.hpp"
 #include <memory>
 
+// CONSTRUCTOR 
 Parser::Parser() {};
+
+// HELPER FUNCTIONS
 Token Parser::peak() {
   return tokens.front();
 };
@@ -34,6 +38,7 @@ Token Parser::expect(TokenType tokenType, std::string errorMessage) {
   return token;
 };
 
+// MAIN FUNCTION
 Program Parser::parse(std::string filepath) {
   Lexer lexer = Lexer();
   this->tokens = lexer.tokenize(filepath);
@@ -51,18 +56,21 @@ Program Parser::parse(std::string filepath) {
   Program program = Program(body);
 
   while(peak().type != TokenType::END_OF_FILE) {
-    program.body.push_back(parseExpression());
+    program.body.push_back(parseStatement());
   }
   
   return program;
 };
 
+
+// PRIMARY EXPRESSIONS - numbers, strings, identifiers, parenthesis
 Expression* Parser::parsePrimary() {
   TokenType type = peak().type;
 
   
   if (type == TokenType::NUMBER) return new NumericLiteral(eat().value);
   else if (type == TokenType::IDENTIFIER) return new Identifier(eat().value);
+  else if (type == TokenType::STRING) return new StringLiteral(eat().value);
   else if (type == TokenType::OPEN_PARENT) {
     eat(); // consume parenthesis
 
@@ -78,6 +86,7 @@ Expression* Parser::parsePrimary() {
   }
 }
 
+// COMPOUND EXPRESSIONS - result in values - binaryOps
 Expression* Parser::parseExpression(int minPrec) {
   auto left = parsePrimary();
 
@@ -102,3 +111,27 @@ Expression* Parser::parseExpression(int minPrec) {
 
   return left;
 }
+
+// STATEMENTS - do not result in values - varDeclarations
+Statement* Parser::parseStatement() {
+  TokenType type = peak().type;
+
+  if (type == TokenType::LET || type == TokenType::CONST) return parseVarDeclaration();
+  else return parseExpression();
+};
+
+Statement* Parser::parseVarDeclaration() {
+  Token token = eat();
+  bool isConstant = token.type == TokenType::CONST;
+
+  Token ident = expect(TokenType::IDENTIFIER, "Expected Identifier symbol");
+  expect(TokenType::EQUAL, "Expexted equals character '='");
+
+  Expression* value = parseExpression();
+
+  if (peak().type == TokenType::END_OF_FILE) return new VarDeclaration(ident.value, value, isConstant);
+  
+  expect(TokenType::NEW_LINE, "Variable declaration should be in one line");
+
+  return new VarDeclaration(ident.value, value, isConstant);
+};
