@@ -1,8 +1,4 @@
-def function1 (y) 
-{
-  let y = 1;   
-}; 
-
-def function2 (x, z) { 
-  let x = 2 
-};
+1 * 2
+def main(x, y) { let y = 2; };def test(a, b) {
+  1 + 1
+}

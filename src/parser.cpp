@@ -40,21 +40,13 @@ Token Parser::expect(TokenType tokenType, std::string& errorMessage) {
 
 void Parser::expectOptionalSemicolon(std::string& message) {
   if (peak().type == TokenType::SEMICOLON) {
-    while (peak().type == TokenType::SEMICOLON) {
-      eat();
-    }
+    eat();
     
     if (peak().type == TokenType::NEW_LINE) {
-      while (peak().type == TokenType::NEW_LINE) {
-        eat();
-      }
+      eat();
     }
   } else {
     expect(TokenType::NEW_LINE, message);
-
-    while(peak().type == TokenType::NEW_LINE) {
-      eat();
-    }
   }
 };
 
@@ -77,6 +69,12 @@ void Parser::expectOptionalSemicolon(const char * message) {
     }
   }
 };
+
+void Parser::removeNewLine() {
+  while(peak().type == TokenType::NEW_LINE) {
+    eat();
+  }
+}
 
 // MAIN FUNCTION
 Program Parser::parse(std::string& filepath) {
@@ -162,6 +160,8 @@ Expression* Parser::parseExpression(int minPrec) {
     left = new BinaryExpression(op, left, right);
   }
 
+  removeNewLine();
+
   return left;
 }
 
@@ -212,33 +212,21 @@ Statement* Parser::parseFunctionDeclaration() {
     expect(TokenType::CLOSE_PARENT, "Expected closing parenthesis ')' in the end of function parameters declaration");
   }
 
-  // EAT ALL NEWLINES
-  while(peak().type == TokenType::NEW_LINE) {
-    eat(); // eat all newlines
-  }
+  removeNewLine();
 
   // Get function body
   expect(TokenType::OPEN_BRACE, "Expected open brace for initializing function body");
 
-  // EAT ALL NEWLINES
-  while(peak().type == TokenType::NEW_LINE) {
-    eat(); // eat all newlines
-  }
+  removeNewLine();
 
   std::vector<Statement*> body;
 
   while(peak().type != TokenType::CLOSE_BRACE) {
-    // EAT ALL NEWLINES
-    while(peak().type == TokenType::NEW_LINE) {
-      eat(); // eat all newlines
-    }
+    removeNewLine();
 
     body.push_back(parseStatement());
 
-    // EAT ALL NEWLINES
-    while(peak().type == TokenType::NEW_LINE) {
-      eat(); // eat all newlines
-    }
+    removeNewLine();
   }
 
   expect(TokenType::CLOSE_BRACE, "Expected close brace '}' ending function body");

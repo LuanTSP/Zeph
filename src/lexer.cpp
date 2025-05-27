@@ -21,6 +21,11 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
     if (c == '\n') {
       // Check for newline token before check for white spaces
       tokens.push_back(Token(TokenType::NEW_LINE, "<new line>"));
+
+      while (file.peek() != EOF && file.peek() == '\n') {
+        file.get(c);
+      }
+
       continue;
     }
     else if (isspace(c)) {
@@ -34,6 +39,12 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
       file.get(c);
     } else if (c == ';') {
       tokens.push_back(Token(TokenType::SEMICOLON, ";"));
+
+      while (file.peek() != EOF && file.peek() == ';') {
+        file.get(c);
+      }
+
+      continue;
     } else if (c == '.') {
       tokens.push_back(Token(TokenType::DOT, "."));
     } else if (c == ',') {
