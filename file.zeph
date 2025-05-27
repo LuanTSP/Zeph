@@ -1,4 +1,4 @@
-1 * 2
-def main(x, y) { let y = 2; };def test(a, b) {
-  1 + 1
-}
+1 - 2 * 3
+2 + 48 % 5
+def main(x, y) { let x = 2 - 5; }
+

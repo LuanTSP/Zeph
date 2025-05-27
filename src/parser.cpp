@@ -39,6 +39,7 @@ Token Parser::expect(TokenType tokenType, std::string& errorMessage) {
 };
 
 void Parser::expectOptionalSemicolon(std::string& message) {
+  removeNewLine();
   if (peak().type == TokenType::SEMICOLON) {
     eat();
     
