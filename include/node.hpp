@@ -8,6 +8,7 @@ enum NodeType {
   // Statements
   PROGRAM,
   VAR_DECLARATION,
+  FUNC_DECLARATION,
   // Expressions
   BINARY_EXPRESSION,
   // Literals
@@ -38,6 +39,7 @@ struct Program : Statement {
   Program(std::vector<Statement*> body) : Statement(NodeType::PROGRAM), body(body) {}
 };
 
+// STATEMENTS //
 struct VarDeclaration : Statement {
   public:
   std::string symbol;
@@ -47,6 +49,16 @@ struct VarDeclaration : Statement {
   VarDeclaration(std::string symbol, Expression* value, bool isConstant) : Statement(NodeType::VAR_DECLARATION), symbol(symbol), value(value), isConstant(isConstant) {}
 };
 
+struct FunctionDeclaration : Statement {
+  public:
+  std::string name;
+  std::vector<std::string> params;
+  std::vector<Statement*> body;
+
+  FunctionDeclaration(std::string name, std::vector<std::string> params, std::vector<Statement*> body) : Statement(NodeType::FUNC_DECLARATION), name(name), params(params), body(body) {}
+};
+
+// EXPRESSIONS
 struct Identifier : Expression {
   public:
   std::string symbol;

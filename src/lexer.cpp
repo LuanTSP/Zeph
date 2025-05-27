@@ -39,9 +39,9 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
     } else if (c == ',') {
       tokens.push_back(Token(TokenType::COMMA, ","));
     } else if (c == '{') {
-      tokens.push_back(Token(TokenType::OPEN_BRACKET, "{"));
+      tokens.push_back(Token(TokenType::OPEN_BRACE, "{"));
     } else if (c == '}') {
-      tokens.push_back(Token(TokenType::CLOSE_BRACKET, "}"));
+      tokens.push_back(Token(TokenType::CLOSE_BRACE, "}"));
     } else if (c == '(') {
       tokens.push_back(Token(TokenType::OPEN_PARENT, "("));
     } else if (c == ')') {

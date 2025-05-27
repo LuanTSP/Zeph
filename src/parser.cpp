@@ -139,7 +139,6 @@ Expression* Parser::parsePrimary() {
 // Member
 // PrimaryExpr
 
-
 // COMPOUND EXPRESSIONS - result in values - binaryOps
 Expression* Parser::parseExpression(int minPrec) {
   auto left = parsePrimary();
@@ -171,6 +170,7 @@ Statement* Parser::parseStatement() {
   TokenType type = peak().type;
 
   if (type == TokenType::LET || type == TokenType::CONST) return parseVarDeclaration();
+  else if (type == TokenType::DEF) return parseFunctionDeclaration();
   else return parseExpression();
 };
 
@@ -189,3 +189,63 @@ Statement* Parser::parseVarDeclaration() {
 
   return new VarDeclaration(ident.value, value, isConstant);
 };
+
+Statement* Parser::parseFunctionDeclaration() {
+  eat();
+  auto funcIdent = expect(TokenType::IDENTIFIER, "Expected identifier for function declaration");
+
+  expect(TokenType::OPEN_PARENT, "Expected '(' in order to initialize arguments for function declaration");
+
+  // Get parameters list
+  std::vector<std::string> params;
+
+  if (peak().type != TokenType::CLOSE_PARENT) {
+    auto param = expect(TokenType::IDENTIFIER, "Expected a parameter in function declaration");
+    params.push_back(param.value);
+
+    while(peak().type == TokenType::COMMA) {
+      eat(); // eat comma
+      param = expect(TokenType::IDENTIFIER, "Expected a parameter in function declaration");
+      params.push_back(param.value);
+    }
+
+    expect(TokenType::CLOSE_PARENT, "Expected closing parenthesis ')' in the end of function parameters declaration");
+  }
+
+  // EAT ALL NEWLINES
+  while(peak().type == TokenType::NEW_LINE) {
+    eat(); // eat all newlines
+  }
+
+  // Get function body
+  expect(TokenType::OPEN_BRACE, "Expected open brace for initializing function body");
+
+  // EAT ALL NEWLINES
+  while(peak().type == TokenType::NEW_LINE) {
+    eat(); // eat all newlines
+  }
+
+  std::vector<Statement*> body;
+
+  while(peak().type != TokenType::CLOSE_BRACE) {
+    // EAT ALL NEWLINES
+    while(peak().type == TokenType::NEW_LINE) {
+      eat(); // eat all newlines
+    }
+
+    body.push_back(parseStatement());
+
+    // EAT ALL NEWLINES
+    while(peak().type == TokenType::NEW_LINE) {
+      eat(); // eat all newlines
+    }
+  }
+
+  expect(TokenType::CLOSE_BRACE, "Expected close brace '}' ending function body");
+
+  if (peak().type == TokenType::END_OF_FILE) return new FunctionDeclaration(funcIdent.value, params, body);
+
+  expectOptionalSemicolon("Expected newline or semicolon ';' ending function declaration");
+
+  return new FunctionDeclaration(funcIdent.value, params, body);
+}

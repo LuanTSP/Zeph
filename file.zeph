@@ -1,1 +1,8 @@
-let x = 2;
+def function1 (y) 
+{
+  let y = 1;   
+}; 
+
+def function2 (x, z) { 
+  let x = 2 
+};

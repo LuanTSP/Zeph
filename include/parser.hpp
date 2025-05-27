@@ -23,4 +23,5 @@ class Parser {
   Expression* parseExpression(int minPrec = -1);
   Statement* parseStatement();
   Statement* parseVarDeclaration();
+  Statement* parseFunctionDeclaration();
 };
