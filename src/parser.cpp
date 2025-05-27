@@ -28,7 +28,7 @@ Token Parser::expect(TokenType tokenType, const char* errorMessage) {
   return token;
 };
 
-Token Parser::expect(TokenType tokenType, std::string errorMessage) {
+Token Parser::expect(TokenType tokenType, std::string& errorMessage) {
   if (this->tokens.front().type != tokenType) {
     Log::err(errorMessage);
   }
@@ -38,8 +38,48 @@ Token Parser::expect(TokenType tokenType, std::string errorMessage) {
   return token;
 };
 
+void Parser::expectOptionalSemicolon(std::string& message) {
+  if (peak().type == TokenType::SEMICOLON) {
+    while (peak().type == TokenType::SEMICOLON) {
+      eat();
+    }
+    
+    if (peak().type == TokenType::NEW_LINE) {
+      while (peak().type == TokenType::NEW_LINE) {
+        eat();
+      }
+    }
+  } else {
+    expect(TokenType::NEW_LINE, message);
+
+    while(peak().type == TokenType::NEW_LINE) {
+      eat();
+    }
+  }
+};
+
+void Parser::expectOptionalSemicolon(const char * message) {
+  if (peak().type == TokenType::SEMICOLON) {
+    while (peak().type == TokenType::SEMICOLON) {
+      eat();
+    }
+    
+    if (peak().type == TokenType::NEW_LINE) {
+      while (peak().type == TokenType::NEW_LINE) {
+        eat();
+      }
+    }
+  } else {
+    expect(TokenType::NEW_LINE, message);
+
+    while(peak().type == TokenType::NEW_LINE) {
+      eat();
+    }
+  }
+};
+
 // MAIN FUNCTION
-Program Parser::parse(std::string filepath) {
+Program Parser::parse(std::string& filepath) {
   Lexer lexer = Lexer();
   this->tokens = lexer.tokenize(filepath);
 
@@ -57,6 +97,10 @@ Program Parser::parse(std::string filepath) {
 
   while(peak().type != TokenType::END_OF_FILE) {
     program.body.push_back(parseStatement());
+  }
+
+  for (auto stmt : program.body) {
+    Log::log(stmt->type);
   }
   
   return program;
@@ -85,6 +129,16 @@ Expression* Parser::parsePrimary() {
     return nullptr;
   }
 }
+
+// Orders Of Prescidence
+// Assignment
+// Object
+// AdditiveExpr
+// MultiplicitaveExpr
+// Call
+// Member
+// PrimaryExpr
+
 
 // COMPOUND EXPRESSIONS - result in values - binaryOps
 Expression* Parser::parseExpression(int minPrec) {
@@ -131,7 +185,7 @@ Statement* Parser::parseVarDeclaration() {
 
   if (peak().type == TokenType::END_OF_FILE) return new VarDeclaration(ident.value, value, isConstant);
   
-  expect(TokenType::NEW_LINE, "Variable declaration should be in one line");
+  expectOptionalSemicolon("Variable declaration should be followed by new line or simicolon ';'");
 
   return new VarDeclaration(ident.value, value, isConstant);
 };

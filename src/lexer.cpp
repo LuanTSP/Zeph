@@ -32,6 +32,8 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
         file.get(c);
       }
       file.get(c);
+    } else if (c == ';') {
+      tokens.push_back(Token(TokenType::SEMICOLON, ";"));
     } else if (c == '.') {
       tokens.push_back(Token(TokenType::DOT, "."));
     } else if (c == ',') {

@@ -19,6 +19,7 @@ enum TokenType {
   OPEN_PARENT,
   CLOSE_PARENT,
   COMMA,
+  SEMICOLON,
   DOT,
   DOUBLE_QUOTES,
 };
