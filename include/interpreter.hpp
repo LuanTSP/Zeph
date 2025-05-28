@@ -1,0 +1,16 @@
+#pragma once
+#include "values.hpp"
+#include "enviroment.hpp"
+#include "node.hpp"
+#include "log.hpp"
+#include <string>
+
+class Interpreter {
+public:
+  Interpreter();
+
+  RuntimeValue* evaluate(Statement* stmt, Enviroment& env);
+  RuntimeValue* evaluateBinaryExpression(BinaryExpression* binExpr, Enviroment& env);
+  RuntimeValue* evaluateProgram(Program* program, Enviroment& env);
+  float evaluateNumericBinaryExpression(float leftValue, float rightValue, const std::string& op);
+};

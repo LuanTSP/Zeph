@@ -1,10 +1,10 @@
 #pragma once
 #include <iostream>
 #include "node.hpp"
+#include "values.hpp"
 
 class Log {
 public:
-  // Logging
   template <typename... Args> static void log(Args&&... args) {
     (std::cout << ... << args) << std::endl;
   }
@@ -144,5 +144,15 @@ public:
   static void printAST(const Program& program) {
     log("\nAST");
     printAST(&program);
+  }
+
+  static void printValue(RuntimeValue* program) {
+    if (program->type == ValueType::NUMBER_VALUE) {
+      auto cast = static_cast<NumberValue*>(program);
+      if (!cast) {
+        Log::err("Error casting");
+      }
+      log("Result: {", cast->value, "}");
+    }
   }
 };

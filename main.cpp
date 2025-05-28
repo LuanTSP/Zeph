@@ -1,6 +1,8 @@
-#include "include/lexer.hpp"
 #include "include/log.hpp"
+#include "include/lexer.hpp"
 #include "include/parser.hpp"
+#include "include/interpreter.hpp"
+#include "include/enviroment.hpp"
 #include <string>
 
 int main(int argc, char* argv[]) {
@@ -16,5 +18,13 @@ int main(int argc, char* argv[]) {
 
   Parser parser = Parser();
   Program program = parser.parse(filepath);
+
   Log::printAST(program);
+  
+  Enviroment env = Enviroment();
+  
+  Interpreter interpreter = Interpreter();
+  
+  auto result = interpreter.evaluate(&program, env);
+  Log::printValue(result);
 }
