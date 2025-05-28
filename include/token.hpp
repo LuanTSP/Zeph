@@ -3,7 +3,6 @@
 
 enum TokenType {
   END_OF_FILE,
-  NEW_LINE,
   IDENTIFIER,
   NUMBER,
   STRING,
@@ -25,7 +24,10 @@ enum TokenType {
 };
 
 struct Token {
-  Token(TokenType type, std::string value);
+  public:
   TokenType type;
   std::string value;
+  int line;
+  int col;
+  Token(TokenType type, std::string value, int line);
 };

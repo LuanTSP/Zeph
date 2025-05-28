@@ -13,6 +13,8 @@ Token Parser::peak() {
 };
 
 Token Parser::eat() {
+  changedLine = isNextTokenOnSameLine() ? false : true;
+  
   Token token = this->tokens.front();
   this->tokens.erase(this->tokens.begin());
   return token;
@@ -22,6 +24,9 @@ Token Parser::expect(TokenType tokenType, const char* errorMessage) {
   if (this->tokens.front().type != tokenType) {
     Log::err(errorMessage);
   }
+
+  changedLine = isNextTokenOnSameLine() ? false : true;
+
   // eat and retur token
   Token token = this->tokens.front();
   this->tokens.erase(this->tokens.begin());
@@ -29,9 +34,13 @@ Token Parser::expect(TokenType tokenType, const char* errorMessage) {
 };
 
 Token Parser::expect(TokenType tokenType, std::string& errorMessage) {
+  
   if (this->tokens.front().type != tokenType) {
     Log::err(errorMessage);
   }
+
+  changedLine = isNextTokenOnSameLine() ? false : true;
+
   // eat and retur token
   Token token = this->tokens.front();
   this->tokens.erase(this->tokens.begin());
@@ -39,42 +48,39 @@ Token Parser::expect(TokenType tokenType, std::string& errorMessage) {
 };
 
 void Parser::expectOptionalSemicolon(std::string& message) {
-  removeNewLine();
+  if (peak().type == TokenType::END_OF_FILE) {
+    return;
+  }
+  
   if (peak().type == TokenType::SEMICOLON) {
     eat();
-    
-    if (peak().type == TokenType::NEW_LINE) {
-      eat();
-    }
-  } else {
-    expect(TokenType::NEW_LINE, message);
+    return;
+  }
+
+  if (!changedLine) {
+    Log::err(message);
   }
 };
 
 void Parser::expectOptionalSemicolon(const char * message) {
+  if (peak().type == TokenType::END_OF_FILE) {
+    return;
+  }
+  
   if (peak().type == TokenType::SEMICOLON) {
-    while (peak().type == TokenType::SEMICOLON) {
-      eat();
-    }
-    
-    if (peak().type == TokenType::NEW_LINE) {
-      while (peak().type == TokenType::NEW_LINE) {
-        eat();
-      }
-    }
-  } else {
-    expect(TokenType::NEW_LINE, message);
+    eat();
+    return;
+  }
 
-    while(peak().type == TokenType::NEW_LINE) {
-      eat();
-    }
+  if (!changedLine) {
+    Log::err(message);
   }
 };
 
-void Parser::removeNewLine() {
-  while(peak().type == TokenType::NEW_LINE) {
-    eat();
-  }
+bool Parser::isNextTokenOnSameLine() {
+  if (tokens.size() < 2) return false; // case where there is only "END_OF_FILE" token
+  
+  return tokens[0].line == tokens[1].line; 
 }
 
 // MAIN FUNCTION
@@ -85,7 +91,7 @@ Program Parser::parse(std::string& filepath) {
   // DEBUG
   Log::log("TOKENS");
   for (auto token : tokens) {
-    Log::log("{", token.type, " ,", token.value, "}");
+    Log::log("{", token.type, " ,", token.value, " ,", token.line, "}");
   }
   // END DEBUG
 
@@ -96,10 +102,6 @@ Program Parser::parse(std::string& filepath) {
 
   while(peak().type != TokenType::END_OF_FILE) {
     program.body.push_back(parseStatement());
-  }
-
-  for (auto stmt : program.body) {
-    Log::log(stmt->type);
   }
   
   return program;
@@ -124,7 +126,6 @@ Expression* Parser::parsePrimary() {
   } else {
     Log::err("Unexpected token found during parsing: ", type);
     
-    // BUG ??
     return nullptr;
   }
 }
@@ -161,18 +162,27 @@ Expression* Parser::parseExpression(int minPrec) {
     left = new BinaryExpression(op, left, right);
   }
 
-  removeNewLine();
-
   return left;
 }
 
 // STATEMENTS - do not result in values - varDeclarations
 Statement* Parser::parseStatement() {
-  TokenType type = peak().type;
+  Statement* stmt = nullptr;
 
-  if (type == TokenType::LET || type == TokenType::CONST) return parseVarDeclaration();
-  else if (type == TokenType::DEF) return parseFunctionDeclaration();
-  else return parseExpression();
+  if (peak().type == TokenType::LET || peak().type == TokenType::CONST) {
+    stmt = parseVarDeclaration();
+  } else if (peak().type == TokenType::DEF) { 
+    stmt = parseFunctionDeclaration();
+  } else {
+    stmt = parseExpression();
+  }
+
+  std::string message = "Expected semicolon ';' or new line after statement in line ";
+  message = message + std::to_string(peak().line);
+    
+  expectOptionalSemicolon(message);
+  
+  return stmt;
 };
 
 Statement* Parser::parseVarDeclaration() {
@@ -183,10 +193,6 @@ Statement* Parser::parseVarDeclaration() {
   expect(TokenType::EQUAL, "Expexted equals character '='");
 
   Expression* value = parseExpression();
-
-  if (peak().type == TokenType::END_OF_FILE) return new VarDeclaration(ident.value, value, isConstant);
-  
-  expectOptionalSemicolon("Variable declaration should be followed by new line or simicolon ';'");
 
   return new VarDeclaration(ident.value, value, isConstant);
 };
@@ -210,31 +216,21 @@ Statement* Parser::parseFunctionDeclaration() {
       params.push_back(param.value);
     }
 
-    expect(TokenType::CLOSE_PARENT, "Expected closing parenthesis ')' in the end of function parameters declaration");
   }
-
-  removeNewLine();
+  expect(TokenType::CLOSE_PARENT, "Expected closing parenthesis ')' in the end of function parameters declaration");
 
   // Get function body
   expect(TokenType::OPEN_BRACE, "Expected open brace for initializing function body");
 
-  removeNewLine();
-
   std::vector<Statement*> body;
 
   while(peak().type != TokenType::CLOSE_BRACE) {
-    removeNewLine();
 
     body.push_back(parseStatement());
 
-    removeNewLine();
   }
 
   expect(TokenType::CLOSE_BRACE, "Expected close brace '}' ending function body");
-
-  if (peak().type == TokenType::END_OF_FILE) return new FunctionDeclaration(funcIdent.value, params, body);
-
-  expectOptionalSemicolon("Expected newline or semicolon ';' ending function declaration");
 
   return new FunctionDeclaration(funcIdent.value, params, body);
 }

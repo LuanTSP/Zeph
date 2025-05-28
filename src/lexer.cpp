@@ -17,12 +17,14 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
   }
 
   char c;
+  int line = 1;
   while (file.get(c)) {
     if (c == '\n') {
       // Check for newline token before check for white spaces
-      tokens.push_back(Token(TokenType::NEW_LINE, "<new line>"));
+      line++;
 
       while (file.peek() != EOF && file.peek() == '\n') {
+        line++;
         file.get(c);
       }
 
@@ -36,9 +38,10 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
       while (file.peek() != EOF && file.peek() != '\n') {
         file.get(c);
       }
+      if (file.peek() == '\n') line++;
       file.get(c);
     } else if (c == ';') {
-      tokens.push_back(Token(TokenType::SEMICOLON, ";"));
+      tokens.push_back(Token(TokenType::SEMICOLON, ";", line));
 
       while (file.peek() != EOF && file.peek() == ';') {
         file.get(c);
@@ -46,19 +49,19 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
 
       continue;
     } else if (c == '.') {
-      tokens.push_back(Token(TokenType::DOT, "."));
+      tokens.push_back(Token(TokenType::DOT, ".", line));
     } else if (c == ',') {
-      tokens.push_back(Token(TokenType::COMMA, ","));
+      tokens.push_back(Token(TokenType::COMMA, ",", line));
     } else if (c == '{') {
-      tokens.push_back(Token(TokenType::OPEN_BRACE, "{"));
+      tokens.push_back(Token(TokenType::OPEN_BRACE, "{", line));
     } else if (c == '}') {
-      tokens.push_back(Token(TokenType::CLOSE_BRACE, "}"));
+      tokens.push_back(Token(TokenType::CLOSE_BRACE, "}", line));
     } else if (c == '(') {
-      tokens.push_back(Token(TokenType::OPEN_PARENT, "("));
+      tokens.push_back(Token(TokenType::OPEN_PARENT, "(", line));
     } else if (c == ')') {
-      tokens.push_back(Token(TokenType::CLOSE_PARENT, ")"));
+      tokens.push_back(Token(TokenType::CLOSE_PARENT, ")", line));
     } else if (c == '=') {
-      tokens.push_back(Token(TokenType::EQUAL, "="));
+      tokens.push_back(Token(TokenType::EQUAL, "=", line));
     } else if (c == '"') {
       std::string str = "";
       file.get(c); // advance "
@@ -68,10 +71,10 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
         file.get(c);
       }
 
-      tokens.push_back(Token(TokenType::STRING, str));
+      tokens.push_back(Token(TokenType::STRING, str, line));
     }  else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%') {
       std::string op; op += c;
-      tokens.push_back(Token(TokenType::BINARY_OP, op));
+      tokens.push_back(Token(TokenType::BINARY_OP, op, line));
     } else if (std::isdigit(c)) {
       // Make numbers
       std::string number;
@@ -81,7 +84,7 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
         file.get(c);
         number += c;
       }
-      tokens.push_back(Token(TokenType::NUMBER, number));
+      tokens.push_back(Token(TokenType::NUMBER, number, line));
 
     } else if (std::isalpha(c)) {
       // Make Identifiers and keywords
@@ -95,15 +98,15 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
 
       // Check for predefined keywords
       if (ident == "let") {
-        tokens.push_back(Token(TokenType::LET, ident));
+        tokens.push_back(Token(TokenType::LET, ident, line));
       } else if (ident == "const") {
-        tokens.push_back(Token(TokenType::CONST, ident));
+        tokens.push_back(Token(TokenType::CONST, ident, line));
       } else if (ident == "def") {
-        tokens.push_back(Token(TokenType::DEF, ident));
+        tokens.push_back(Token(TokenType::DEF, ident, line));
       } else if (ident == "return") {
-        tokens.push_back(Token(TokenType::RETURN, ident));
+        tokens.push_back(Token(TokenType::RETURN, ident, line));
       } else {
-        tokens.push_back(Token(TokenType::IDENTIFIER, ident));
+        tokens.push_back(Token(TokenType::IDENTIFIER, ident, line));
       }
     } else {
       Log::err("Unrecognized character: ", c);
@@ -111,7 +114,7 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
   }
 
   // Add eof token in the very end
-  tokens.push_back(Token(TokenType::END_OF_FILE, "EOF"));
+  tokens.push_back(Token(TokenType::END_OF_FILE, "EOF", line));
 
   return this->tokens;
 }

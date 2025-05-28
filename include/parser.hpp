@@ -9,6 +9,7 @@
 class Parser {
   private:
   std::vector<Token> tokens;
+  bool changedLine = false;
 
   public:
   Parser();
@@ -18,7 +19,7 @@ class Parser {
   Token expect(TokenType tokenType, std::string& errorMessage);
   void expectOptionalSemicolon(std::string& errorMessage);
   void expectOptionalSemicolon(const char * errorMessage);
-  void removeNewLine();
+  bool isNextTokenOnSameLine();
   Program parse(std::string& filepath);
   Expression* parsePrimary();
   Expression* parseExpression(int minPrec = -1);
