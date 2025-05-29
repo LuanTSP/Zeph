@@ -116,6 +116,7 @@ Expression* Parser::parsePrimary() {
   if (type == TokenType::NUMBER) return new NumericLiteral(eat().value);
   else if (type == TokenType::IDENTIFIER) return new Identifier(eat().value);
   else if (type == TokenType::STRING) return new StringLiteral(eat().value);
+  else if (type == TokenType::BOOLEAN_TOKEN) return new BooleanLiteral(eat().value);
   else if (type == TokenType::NULL_TOKEN) { 
     eat(); // get past null token
     return new NullLiteral(); 

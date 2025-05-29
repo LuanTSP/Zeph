@@ -5,6 +5,7 @@ enum TokenType {
   END_OF_FILE,
   IDENTIFIER,
   NUMBER,
+  BOOLEAN_TOKEN,
   STRING,
   EQUAL,
   LET,

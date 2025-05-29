@@ -176,6 +176,12 @@ public:
         Log::err("Error casting");
       }
       log("Result: {", cast->value, "}");
+    } else if (program->type == ValueType::BOOLEAN) {
+      auto cast = static_cast<BooleanValue*>(program);
+      if (!cast) {
+        Log::err("Error casting");
+      }
+      log("Result: {", cast->value, "}");
     } else {
       log("Unrecognized type in program result: ", program->type);
     }

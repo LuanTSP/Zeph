@@ -29,6 +29,15 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       return evaluateIdentifier(ident, env);
     }
 
+    case NodeType::STRING_LITERAL: {
+      auto str = dynamic_cast<StringLiteral*>(stmt);
+      if (!str) {
+        Log::err("Invalid cast to StringLiteral");
+      }
+
+      return new StringValue(str->value);
+    }
+
     case NodeType::NULL_LITERAL: {
       auto nll = dynamic_cast<NullLiteral*>(stmt);
       if (!nll) {
@@ -36,6 +45,25 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       }
 
       return new NullValue();
+    }
+
+    case NodeType::BOOLEAN_LITERAL: {
+      auto bll = dynamic_cast<BooleanLiteral*>(stmt);
+      if (!bll) {
+        Log::err("Invalid cast to BooleanLiteral");
+      }
+
+      bool value = bll->value == "true" ? true : false;
+      return new BooleanValue(value);
+    }
+
+    case NodeType::VAR_DECLARATION: {
+      auto decl = dynamic_cast<VarDeclaration*>(stmt);
+      if (!decl) {
+        Log::err("Invalid cast to VarDeclaration");
+      }
+
+      return evaluateVariableDeclaration(decl, env);
     }
 
     case NodeType::BINARY_EXPRESSION: {
@@ -50,6 +78,12 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       Log::err("This node has not been setup for interpretation: ", stmt->type);
       return new NullValue();
   }
+}
+
+RuntimeValue* Interpreter::evaluateVariableDeclaration(VarDeclaration* decl, Enviroment& env) {
+  auto value = evaluate(decl->value, env);
+  
+  return env.declareVariable(decl->symbol, value, decl->isConstant);
 }
 
 RuntimeValue* Interpreter::evaluateIdentifier(Identifier* ident, Enviroment& env) {
@@ -84,6 +118,35 @@ RuntimeValue* Interpreter::evaluateBinaryExpression(BinaryExpression* binExpr, E
     // delete right;
 
     return new NumberValue(result);
+    
+  } else if (left->type == ValueType::BOOLEAN && right->type == ValueType::BOOLEAN) {
+    bool bLeft = static_cast<BooleanValue*>(left)->value;
+    bool bRight = static_cast<BooleanValue*>(right)->value;
+    
+    return new NumberValue(bLeft + bRight);
+
+  } else if (left->type == ValueType::BOOLEAN && right->type == ValueType::NUMBER_VALUE) {
+    bool bLeft = static_cast<BooleanValue*>(left)->value;
+    float nRight = static_cast<NumberValue*>(right)->value;
+    
+    return new NumberValue(bLeft + nRight);
+
+  } else if (left->type == ValueType::NUMBER_VALUE && right->type == ValueType::BOOLEAN) {
+    float nLeft = static_cast<NumberValue*>(left)->value;
+    bool bRight = static_cast<BooleanValue*>(right)->value;
+    
+    return new NumberValue(nLeft + bRight);
+
+  } else if (left->type == ValueType::STRING_VALUE && right->type == ValueType::STRING_VALUE) {
+    std::string sLeft = static_cast<StringValue*>(left)->value;
+    std::string sRight = static_cast<StringValue*>(right)->value;
+    return new StringValue(sLeft + sRight);
+
+  } else if (left->type == ValueType::NULL_VALUE) {
+    return right;
+
+  } else if (right->type == NULL_VALUE) {
+    return left;
   }
   
   delete left;

@@ -47,7 +47,7 @@ Enviroment Enviroment::resolve(std::string& varname) {
 
   if (parent == nullptr) {
     std::string errMsg;
-    Log::err("Variable ", varname, "does not exist");
+    Log::err("Variable ", varname, " does not exist");
   }
 
   return parent->resolve(varname);

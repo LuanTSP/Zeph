@@ -15,6 +15,7 @@ enum NodeType {
   NULL_LITERAL,
   NUMERIC_LITERAL,
   STRING_LITERAL,
+  BOOLEAN_LITERAL,
   IDENTIFIER_LITERAL,
 };
 
@@ -73,6 +74,13 @@ struct NullLiteral : Expression {
   std::string value = "null";
 
   NullLiteral() : Expression(NodeType::NULL_LITERAL) {};
+};
+
+struct BooleanLiteral : Expression {
+  public:
+  std::string value;
+
+  BooleanLiteral(std::string value) : Expression(NodeType::BOOLEAN_LITERAL), value(value) {};
 };
 
 struct NumericLiteral : Expression {
