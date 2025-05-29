@@ -116,6 +116,10 @@ Expression* Parser::parsePrimary() {
   if (type == TokenType::NUMBER) return new NumericLiteral(eat().value);
   else if (type == TokenType::IDENTIFIER) return new Identifier(eat().value);
   else if (type == TokenType::STRING) return new StringLiteral(eat().value);
+  else if (type == TokenType::NULL_TOKEN) { 
+    eat(); // get past null token
+    return new NullLiteral(); 
+  } 
   else if (type == TokenType::OPEN_PARENT) {
     eat(); // consume parenthesis
 
@@ -190,6 +194,11 @@ Statement* Parser::parseVarDeclaration() {
   bool isConstant = token.type == TokenType::CONST;
 
   Token ident = expect(TokenType::IDENTIFIER, "Expected Identifier symbol");
+  
+  if (peak().type != TokenType::EQUAL) {
+    return new VarDeclaration(ident.value, new NullLiteral(), isConstant);
+  }
+  
   expect(TokenType::EQUAL, "Expexted equals character '='");
 
   Expression* value = parseExpression();

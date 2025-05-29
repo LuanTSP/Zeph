@@ -11,6 +11,7 @@ enum TokenType {
   CONST,
   DEF,
   RETURN,
+  NULL_TOKEN,
   BINARY_OP,
   UNARY_OP,
   OPEN_BRACE,

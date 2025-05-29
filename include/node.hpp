@@ -12,6 +12,7 @@ enum NodeType {
   // Expressions
   BINARY_EXPRESSION,
   // Literals
+  NULL_LITERAL,
   NUMERIC_LITERAL,
   STRING_LITERAL,
   IDENTIFIER_LITERAL,
@@ -59,6 +60,7 @@ struct FunctionDeclaration : Statement {
 };
 
 // EXPRESSIONS
+
 struct Identifier : Expression {
   public:
   std::string symbol;
@@ -66,7 +68,13 @@ struct Identifier : Expression {
   Identifier(std::string symbol) : Expression(NodeType::IDENTIFIER_LITERAL), symbol(symbol) {};
 };
 
-// Types of expression nodes
+struct NullLiteral : Expression {
+  public:
+  std::string value = "null";
+
+  NullLiteral() : Expression(NodeType::NULL_LITERAL) {};
+};
+
 struct NumericLiteral : Expression {
   public:
   std::string value;

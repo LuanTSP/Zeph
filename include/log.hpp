@@ -119,6 +119,17 @@ public:
         break;
       }
 
+      case NodeType::NULL_LITERAL: {
+        auto nll = dynamic_cast<const NullLiteral*>(node);
+        if (!nll) {
+          err("Invalid NULL_LITERAL node cast");
+          return;
+        }
+        printIndent();
+        log("NullLiteral: {", nll->value, "}");
+        break;
+      }
+
       case NodeType::BINARY_EXPRESSION: {
         auto bin = dynamic_cast<const BinaryExpression*>(node);
         if (!bin) {

@@ -105,6 +105,8 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
         tokens.push_back(Token(TokenType::DEF, ident, line));
       } else if (ident == "return") {
         tokens.push_back(Token(TokenType::RETURN, ident, line));
+      } else if (ident == "null") {
+        tokens.push_back(Token(TokenType::NULL_TOKEN, ident, line));
       } else {
         tokens.push_back(Token(TokenType::IDENTIFIER, ident, line));
       }
