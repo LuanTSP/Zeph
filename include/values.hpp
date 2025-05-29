@@ -5,6 +5,7 @@
 enum ValueType {
   NULL_VALUE,
   NUMBER_VALUE,
+  STRING_VALUE,
   BOOLEAN,
   FUNCTION,
 };
@@ -21,19 +22,26 @@ struct RuntimeValue {
 struct NullValue : RuntimeValue {
   public:
   std::string value = "null";
-  NullValue() : RuntimeValue(ValueType::NULL_VALUE) {}
+  NullValue() : RuntimeValue(ValueType::NULL_VALUE) {};
 };
 
 struct NumberValue : RuntimeValue {
-  float value;
   public:
-  NumberValue(float value) : RuntimeValue(ValueType::NUMBER_VALUE), value(value) {}
+  float value;
+  NumberValue(float value) : RuntimeValue(ValueType::NUMBER_VALUE), value(value) {};
+};
+
+struct StringValue : RuntimeValue {
+  public:
+  std::string value;
+
+  StringValue(std::string value) : RuntimeValue(ValueType::STRING_VALUE), value(value) {};
 };
 
 struct BooleanValue : RuntimeValue {
   public:
   bool value;
-  BooleanValue(bool value) : RuntimeValue(ValueType::BOOLEAN), value(value) {}
+  BooleanValue(bool value) : RuntimeValue(ValueType::BOOLEAN), value(value) {};
 };
 
 struct FunctionValue : RuntimeValue {

@@ -20,6 +20,24 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       return new NumberValue(std::stof(nLiteral->value));
     }
 
+    case NodeType::IDENTIFIER_LITERAL: {
+      auto ident = dynamic_cast<Identifier*>(stmt);
+      if (!ident) {
+        Log::err("Invalid cast to Identifier");
+      }
+
+      return evaluateIdentifier(ident, env);
+    }
+
+    case NodeType::NULL_LITERAL: {
+      auto nll = dynamic_cast<NullLiteral*>(stmt);
+      if (!nll) {
+        Log::err("Invalid cast to NullLiteral");
+      }
+
+      return new NullValue();
+    }
+
     case NodeType::BINARY_EXPRESSION: {
       auto binExpr = dynamic_cast<BinaryExpression*>(stmt);
       if (!binExpr) {
@@ -32,6 +50,12 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       Log::err("This node has not been setup for interpretation: ", stmt->type);
       return new NullValue();
   }
+}
+
+RuntimeValue* Interpreter::evaluateIdentifier(Identifier* ident, Enviroment& env) {
+  env = env.resolve(ident->symbol); // Get the envorment of the variable
+
+  return env.variables[ident->symbol]; // Return the value
 }
 
 RuntimeValue* Interpreter::evaluateProgram(Program* program, Enviroment& env) {

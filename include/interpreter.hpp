@@ -12,5 +12,6 @@ public:
   RuntimeValue* evaluate(Statement* stmt, Enviroment& env);
   RuntimeValue* evaluateBinaryExpression(BinaryExpression* binExpr, Enviroment& env);
   RuntimeValue* evaluateProgram(Program* program, Enviroment& env);
+  RuntimeValue* evaluateIdentifier(Identifier* ident, Enviroment& env);
   float evaluateNumericBinaryExpression(float leftValue, float rightValue, const std::string& op);
 };

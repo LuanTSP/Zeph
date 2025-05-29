@@ -164,6 +164,20 @@ public:
         Log::err("Error casting");
       }
       log("Result: {", cast->value, "}");
+    } else if (program->type == ValueType::STRING_VALUE) {
+      auto cast = static_cast<StringValue*>(program);
+      if (!cast) {
+        Log::err("Error casting");
+      }
+      log("Result: {'", cast->value, "'}");
+    } else if (program->type == ValueType::NULL_VALUE) {
+      auto cast = static_cast<NullValue*>(program);
+      if (!cast) {
+        Log::err("Error casting");
+      }
+      log("Result: {", cast->value, "}");
+    } else {
+      log("Unrecognized type in program result: ", program->type);
     }
   }
 };
