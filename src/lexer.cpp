@@ -84,6 +84,17 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
         file.get(c);
         number += c;
       }
+
+      if (file.peek() == '.') {
+        file.get(c);
+        number += c;
+
+        while (file.peek() != EOF && std::isdigit(file.peek())) {
+          file.get(c);
+          number += c;
+        }
+      }
+
       tokens.push_back(Token(TokenType::NUMBER, number, line));
 
     } else if (std::isalpha(c)) {

@@ -28,5 +28,7 @@ int main(int argc, char* argv[]) {
   Interpreter interpreter = Interpreter();
   
   auto result = interpreter.evaluate(&program, env);
-  Log::printValue(result);
+  if (result) {
+    Log::printValue(result);
+  }
 }

@@ -80,8 +80,8 @@ RuntimeValue* Interpreter::evaluateBinaryExpression(BinaryExpression* binExpr, E
     );
 
     // Clean up intermediate values
-    delete left;
-    delete right;
+    // delete left;
+    // delete right;
 
     return new NumberValue(result);
   }
