@@ -37,6 +37,7 @@ RuntimeValue* Enviroment::assignVariable(std::string varname, RuntimeValue* valu
   }
 
   env.variables[varname] = value;
+  return value;
 };
 
 Enviroment Enviroment::resolve(std::string& varname) {

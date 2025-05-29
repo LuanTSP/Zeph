@@ -66,6 +66,7 @@ RuntimeValue* Interpreter::evaluateBinaryExpression(BinaryExpression* binExpr, E
   delete right;
 
   Log::err("Binary expression not supported for given types");
+  return nullptr;
 }
 
 float Interpreter::evaluateNumericBinaryExpression(float left, float right, const std::string& op) {
