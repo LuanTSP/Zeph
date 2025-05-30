@@ -22,6 +22,7 @@ int main(int argc, char* argv[]) {
   Log::printAST(program);
   
   Enviroment env = Enviroment();
+  
   env.declareVariable("x", new NumberValue(1), true);
   env.declareVariable("y", new StringValue("mamamia"), true);
   

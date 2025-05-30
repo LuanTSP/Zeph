@@ -115,7 +115,7 @@ public:
           return;
         }
         printIndent();
-        log("StringLiteral: {", str->value, "}");
+        log("StringLiteral: {\"", str->value, "\"}");
         break;
       }
 
@@ -145,6 +145,20 @@ public:
         break;
       }
 
+      case NodeType::VAR_ASSIGNMENT: {
+        auto assign = dynamic_cast<const VariableAssignment*>(node);
+        if (!assign) {
+          err("Invalid VariableAssignment node cast.");
+          return;
+        }
+        printIndent();
+        log("VaribleAssignment: ", assign->ident, " {");
+        printAST(assign->expr, indent + 1);
+        printIndent();
+        log("}");
+        break;
+      }
+
       default:
         printIndent();
         log("Unknown Node Type");
@@ -169,7 +183,7 @@ public:
       if (!cast) {
         Log::err("Error casting");
       }
-      log("Result: {'", cast->value, "'}");
+      log("Result: {\"", cast->value, "\"}");
     } else if (program->type == ValueType::NULL_VALUE) {
       auto cast = static_cast<NullValue*>(program);
       if (!cast) {

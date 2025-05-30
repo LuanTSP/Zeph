@@ -16,7 +16,9 @@ class Enviroment {
   Enviroment();
   Enviroment(Enviroment* parentEnv);
 
-  RuntimeValue* declareVariable(std::string varname, RuntimeValue* value, bool constant);
-  RuntimeValue* assignVariable(std::string varname, RuntimeValue* value);
-  Enviroment resolve(std::string& varname);
+  RuntimeValue* declareVariable(std::string& varname, RuntimeValue* value, bool constant);
+  RuntimeValue* assignVariable(std::string& varname, RuntimeValue* value);
+  RuntimeValue* declareVariable(const char* varname, RuntimeValue* value, bool constant);
+  RuntimeValue* assignVariable(const char* varname, RuntimeValue* value);
+  Enviroment& resolve(std::string& varname);
 };

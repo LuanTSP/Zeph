@@ -12,6 +12,14 @@ Token Parser::peak() {
   return tokens.front();
 };
 
+Token Parser::peak(int n) {
+  if (n >= tokens.size()) {
+    Log::err("Token at index ", n, " is out of bounds");
+  }
+
+  return tokens.at(n);
+};
+
 Token Parser::eat() {
   changedLine = isNextTokenOnSameLine() ? false : true;
   
@@ -136,13 +144,13 @@ Expression* Parser::parsePrimary() {
 }
 
 // Orders Of Prescidence
-// Assignment
-// Object
-// AdditiveExpr
-// MultiplicitaveExpr
-// Call
-// Member
-// PrimaryExpr
+// Assignment              0
+// Object                  1
+// AdditiveExpr            2
+// MultiplicitaveExpr      3
+// Call                    4
+// Member                  5
+// PrimaryExpr             6
 
 // COMPOUND EXPRESSIONS - result in values - binaryOps
 Expression* Parser::parseExpression(int minPrec) {
@@ -174,7 +182,10 @@ Expression* Parser::parseExpression(int minPrec) {
 Statement* Parser::parseStatement() {
   Statement* stmt = nullptr;
 
-  if (peak().type == TokenType::LET || peak().type == TokenType::CONST) {
+  if (peak().type == TokenType::IDENTIFIER && peak(1).type == TokenType::EQUAL) {
+    stmt = parseVarAssignment();
+  }
+  else if (peak().type == TokenType::LET || peak().type == TokenType::CONST) {
     stmt = parseVarDeclaration();
   } else if (peak().type == TokenType::DEF) { 
     stmt = parseFunctionDeclaration();
@@ -244,3 +255,22 @@ Statement* Parser::parseFunctionDeclaration() {
 
   return new FunctionDeclaration(funcIdent.value, params, body);
 }
+
+Statement* Parser::parseVarAssignment() {
+  auto left = parsePrimary();
+
+  if (peak().type != TokenType::EQUAL) {
+    Log::err("Expected equal token '=' in variable assignment");  
+  }
+
+  auto ident = dynamic_cast<Identifier*>(left);
+  if (!ident) {
+    Log::err("Left hand side of assignment expression should be an identifier");
+  }
+
+  eat();
+
+  auto right = parseExpression();
+
+  return new VariableAssignment(ident->symbol, right);
+};

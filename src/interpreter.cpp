@@ -66,6 +66,15 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       return evaluateVariableDeclaration(decl, env);
     }
 
+    case NodeType::VAR_ASSIGNMENT: {
+      auto assign = dynamic_cast<VariableAssignment*>(stmt);
+      if (!assign) {
+        Log::err("Invalid cast to VariableAssignment");
+      }
+
+      return evaluateVariableAssignment(assign, env);
+    }
+
     case NodeType::BINARY_EXPRESSION: {
       auto binExpr = dynamic_cast<BinaryExpression*>(stmt);
       if (!binExpr) {
@@ -80,6 +89,12 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
   }
 }
 
+RuntimeValue* Interpreter::evaluateVariableAssignment(VariableAssignment* assign, Enviroment& env) {
+  auto value = evaluate(assign->expr, env);
+
+  return env.assignVariable(assign->ident, value);
+}
+
 RuntimeValue* Interpreter::evaluateVariableDeclaration(VarDeclaration* decl, Enviroment& env) {
   auto value = evaluate(decl->value, env);
   
@@ -87,9 +102,7 @@ RuntimeValue* Interpreter::evaluateVariableDeclaration(VarDeclaration* decl, Env
 }
 
 RuntimeValue* Interpreter::evaluateIdentifier(Identifier* ident, Enviroment& env) {
-  env = env.resolve(ident->symbol); // Get the envorment of the variable
-
-  return env.variables[ident->symbol]; // Return the value
+  return env.resolve(ident->symbol).variables[ident->symbol]; // Return the value
 }
 
 RuntimeValue* Interpreter::evaluateProgram(Program* program, Enviroment& env) {
@@ -152,7 +165,7 @@ RuntimeValue* Interpreter::evaluateBinaryExpression(BinaryExpression* binExpr, E
   delete left;
   delete right;
 
-  Log::err("Binary expression not supported for given types");
+  Log::err("Binary expression not supported for types");
   return nullptr;
 }
 

@@ -1,1 +1,4 @@
-10 + true + true + true;
+let z = 1;
+z = x + z
+z
+x

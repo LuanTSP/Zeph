@@ -8,10 +8,11 @@ enum NodeType {
   // Statements
   PROGRAM,
   VAR_DECLARATION,
+  VAR_ASSIGNMENT,
   FUNC_DECLARATION,
-  // Expressions
+  // Compound Expressions
   BINARY_EXPRESSION,
-  // Literals
+  // Literal Expresisons
   NULL_LITERAL,
   NUMERIC_LITERAL,
   STRING_LITERAL,
@@ -34,6 +35,7 @@ struct Expression : Statement {
   Expression(NodeType t) : Statement(t) {}
 };
 
+// STATEMENTS //
 struct Program : Statement {
   public:
   std::vector<Statement*> body;
@@ -41,7 +43,6 @@ struct Program : Statement {
   Program(std::vector<Statement*> body) : Statement(NodeType::PROGRAM), body(body) {}
 };
 
-// STATEMENTS //
 struct VarDeclaration : Statement {
   public:
   std::string symbol;
@@ -60,8 +61,15 @@ struct FunctionDeclaration : Statement {
   FunctionDeclaration(std::string name, std::vector<std::string> params, std::vector<Statement*> body) : Statement(NodeType::FUNC_DECLARATION), name(name), params(params), body(body) {}
 };
 
-// EXPRESSIONS
+struct VariableAssignment : Statement {
+  public:
+  std::string ident;
+  Expression* expr = nullptr;
 
+ VariableAssignment(std::string ident, Expression* expr) : Statement(NodeType::VAR_ASSIGNMENT), ident(ident), expr(expr) {};
+};
+
+// EXPRESSIONS //
 struct Identifier : Expression {
   public:
   std::string symbol;

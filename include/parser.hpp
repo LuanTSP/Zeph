@@ -14,6 +14,7 @@ class Parser {
   public:
   Parser();
   Token peak();
+  Token peak(int n);
   Token eat();
   Token expect(TokenType tokenType, const char* errorMessage);
   Token expect(TokenType tokenType, std::string& errorMessage);
@@ -26,4 +27,5 @@ class Parser {
   Statement* parseStatement();
   Statement* parseVarDeclaration();
   Statement* parseFunctionDeclaration();
+  Statement* parseVarAssignment();
 };
