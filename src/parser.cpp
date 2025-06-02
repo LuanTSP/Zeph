@@ -231,19 +231,13 @@ Statement* Parser::parseStatement() {
 };
 
 Statement* Parser::parseReturnStatement() {
-  expect(TokenType::RETURN, "Expected return statement");
+  auto returnTk = eat();
 
-  if (peak().type == TokenType::SEMICOLON) {
-    eat();
-    return new ReturnStatement(nullptr);
+  if (peak().type == TokenType::SEMICOLON || peak().line != returnTk.line ) {
+    return new ReturnStatement(new NullLiteral());
   }
 
-  Log::info(std::to_string( isNextTokenOnSameLine()));
-  if (!isNextTokenOnSameLine()) {
-    return new ReturnStatement(nullptr);
-  }
-
-  auto expr = parseExpression();
+  Expression* expr = parseExpression();
   return new ReturnStatement(expr);
 };
 
