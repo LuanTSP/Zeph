@@ -212,11 +212,12 @@ Statement* Parser::parseStatement() {
 
   if (peak().type == TokenType::IDENTIFIER && peak(1).type == TokenType::EQUAL) {
     stmt = parseVarAssignment();
-  }
-  else if (peak().type == TokenType::LET || peak().type == TokenType::CONST) {
+  } else if (peak().type == TokenType::LET || peak().type == TokenType::CONST) {
     stmt = parseVarDeclaration();
   } else if (peak().type == TokenType::DEF) { 
     stmt = parseFunctionDeclaration();
+  } else if (peak().type == TokenType::RETURN) { 
+    stmt = parseReturnStatement();
   } else {
     stmt = parseExpression();
   }
@@ -227,6 +228,23 @@ Statement* Parser::parseStatement() {
   expectOptionalSemicolon(message);
   
   return stmt;
+};
+
+Statement* Parser::parseReturnStatement() {
+  expect(TokenType::RETURN, "Expected return statement");
+
+  if (peak().type == TokenType::SEMICOLON) {
+    eat();
+    return new ReturnStatement(nullptr);
+  }
+
+  Log::info(std::to_string( isNextTokenOnSameLine()));
+  if (!isNextTokenOnSameLine()) {
+    return new ReturnStatement(nullptr);
+  }
+
+  auto expr = parseExpression();
+  return new ReturnStatement(expr);
 };
 
 Statement* Parser::parseVarDeclaration() {

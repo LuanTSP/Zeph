@@ -10,6 +10,7 @@ enum NodeType {
   VAR_DECLARATION,
   VAR_ASSIGNMENT,
   FUNC_DECLARATION,
+  RETURN_STATEMENT,
   // Compound Expressions
   BINARY_EXPRESSION,
   CALL_EXPRESSION,
@@ -68,6 +69,13 @@ struct VariableAssignment : Statement {
   Expression* expr = nullptr;
 
  VariableAssignment(std::string ident, Expression* expr) : Statement(NodeType::VAR_ASSIGNMENT), ident(ident), expr(expr) {};
+};
+
+struct ReturnStatement : Statement {
+  public:
+  Expression* value = nullptr;
+
+  ReturnStatement(Expression* value) : Statement(NodeType::RETURN_STATEMENT), value(value) {};
 };
 
 // EXPRESSIONS //

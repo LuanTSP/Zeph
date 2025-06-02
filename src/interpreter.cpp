@@ -99,6 +99,20 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       return evaluateCallExpression(callExpr, env);
     }
 
+    case NodeType::RETURN_STATEMENT: {
+      auto ret = dynamic_cast<ReturnStatement*>(stmt);
+      if (!ret) {
+        Log::err("Invalid cast to ReturnStatement");
+      }
+
+      RuntimeValue* returnValue = nullptr;
+      if (ret->value == nullptr) {
+        return new ReturnValue(new NullValue());
+      }
+
+      return new ReturnValue(evaluate(ret->value, env));
+    }
+
     default:
       Log::err("This node has not been setup for interpretation: ", stmt->type);
       return new NullValue();
@@ -239,7 +253,13 @@ RuntimeValue* Interpreter::evaluateCallExpression(CallExpression* expr, Envirome
 
   RuntimeValue* returnValue = nullptr;
   for (auto stmt : function->body) {
-    returnValue = evaluate(stmt, localEnv);
+    RuntimeValue* result = evaluate(stmt, localEnv);
+
+    if (result && result->type == ValueType::RETURN_VALUE) {
+      return static_cast<ReturnValue*>(result)->value;
+    }
+
+    returnValue = result;
   }
 
   return returnValue ? returnValue : new NullValue();

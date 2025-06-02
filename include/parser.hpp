@@ -26,6 +26,7 @@ class Parser {
   Expression* parseExpression(int minPrec = -1);
   Expression* parseCallExpression(Expression* caller);
   Statement* parseStatement();
+  Statement* parseReturnStatement();
   Statement* parseVarDeclaration();
   Statement* parseFunctionDeclaration();
   Statement* parseVarAssignment();

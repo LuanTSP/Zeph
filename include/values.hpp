@@ -6,6 +6,7 @@ enum ValueType {
   NULL_VALUE,
   NUMBER_VALUE,
   STRING_VALUE,
+  RETURN_VALUE,
   BOOLEAN,
   FUNCTION,
 };
@@ -17,6 +18,13 @@ struct RuntimeValue {
   ValueType type;
 
   RuntimeValue(ValueType type) : type(type) {} 
+};
+
+struct ReturnValue : RuntimeValue {
+  public:
+  RuntimeValue* value;
+
+  ReturnValue(RuntimeValue* value) : RuntimeValue(ValueType::RETURN_VALUE), value(value) {};
 };
 
 struct NullValue : RuntimeValue {

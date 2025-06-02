@@ -24,7 +24,6 @@ int main(int argc, char* argv[]) {
   Enviroment env = Enviroment();
   
   env.declareVariable("x", new NumberValue(1), true);
-  env.declareVariable("y", new StringValue("mamamia"), true);
   
   Interpreter interpreter = Interpreter();
   
