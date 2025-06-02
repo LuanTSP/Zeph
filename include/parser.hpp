@@ -24,6 +24,7 @@ class Parser {
   Program parse(std::string& filepath);
   Expression* parsePrimary();
   Expression* parseExpression(int minPrec = -1);
+  Expression* parseCallExpression(Expression* caller);
   Statement* parseStatement();
   Statement* parseVarDeclaration();
   Statement* parseFunctionDeclaration();

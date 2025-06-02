@@ -13,14 +13,12 @@ Enviroment::Enviroment(Enviroment* parentEnv) {
 }
 
 RuntimeValue* Enviroment::declareVariable(std::string& varname, RuntimeValue* value, bool constant) {
-  Log::info(varname, ", ", value->type);
   if (variables.find(varname) != variables.end()) {
     Log::err("Cannot declare variable '", varname, "' as it was already declared");
   }
 
   variables[varname] = value;
-  Log::info(varname, ", ", variables[varname]);
-
+  
   if (constant) {
     constants.push_back(varname);
   }

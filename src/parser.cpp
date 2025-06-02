@@ -118,29 +118,46 @@ Program Parser::parse(std::string& filepath) {
 
 // PRIMARY EXPRESSIONS - numbers, strings, identifiers, parenthesis
 Expression* Parser::parsePrimary() {
-  TokenType type = peak().type;
+  Expression* expr = nullptr;
 
-  
-  if (type == TokenType::NUMBER) return new NumericLiteral(eat().value);
-  else if (type == TokenType::IDENTIFIER) return new Identifier(eat().value);
-  else if (type == TokenType::STRING) return new StringLiteral(eat().value);
-  else if (type == TokenType::BOOLEAN_TOKEN) return new BooleanLiteral(eat().value);
-  else if (type == TokenType::NULL_TOKEN) { 
-    eat(); // get past null token
-    return new NullLiteral(); 
-  } 
-  else if (type == TokenType::OPEN_PARENT) {
-    eat(); // consume parenthesis
+  switch (peak().type) {
+    case TokenType::NUMBER:
+      expr = new NumericLiteral(eat().value);
+      break;
 
-    auto value = parseExpression();
-    expect(TokenType::CLOSE_PARENT, "Expected ')' closing the expression");
-    
-    return value;
-  } else {
-    Log::err("Unexpected token found during parsing: ", type);
-    
-    return nullptr;
+    case TokenType::IDENTIFIER:
+      expr = new Identifier(eat().value);
+      break;
+
+    case TokenType::STRING:
+      expr = new StringLiteral(eat().value);
+      break;
+
+    case TokenType::BOOLEAN_TOKEN:
+      expr = new BooleanLiteral(eat().value);
+      break;
+
+    case TokenType::NULL_TOKEN:
+      eat(); // consume null
+      expr = new NullLiteral();
+      break;
+
+    case TokenType::OPEN_PARENT:
+      eat(); // consume '('
+      expr = parseExpression();
+      expect(TokenType::CLOSE_PARENT, "Expected closing ')'");
+      break;
+
+    default:
+      Log::err("Unexpected token in primary expression: ", peak().type);
   }
+
+  // Handle possible call expression: identifier followed by '('
+  while (peak().type == TokenType::OPEN_PARENT) {
+    expr = parseCallExpression(expr);
+  }
+
+  return expr;
 }
 
 // Orders Of Prescidence
@@ -154,25 +171,36 @@ Expression* Parser::parsePrimary() {
 
 // COMPOUND EXPRESSIONS - result in values - binaryOps
 Expression* Parser::parseExpression(int minPrec) {
-  auto left = parsePrimary();
+  Expression* left = parsePrimary();
 
-  while(peak().type != TokenType::END_OF_FILE && peak().type == TokenType::BINARY_OP) {
-    // Determine precedence of operator
-    int precedence;
-    std::string op = peak().value;
-    if (op == "+" || op == "-") precedence = 0;
-    else if (op == "*" || op == "/" || op == "%") precedence = 1;
-    else Log::err("Non recognized operation: ", op);
+  while (true) {
+    TokenType type = peak().type;
 
-    if (precedence < minPrec) {
-      break;
+    // Handle binary operators
+    if (type == TokenType::BINARY_OP) {
+      int precedence;
+      std::string op = peak().value;
+
+      if (op == "+" || op == "-") precedence = 0;
+      else if (op == "*" || op == "/" || op == "%") precedence = 1;
+      else Log::err("Unknown binary operator: ", op);
+
+      if (precedence < minPrec) break;
+
+      eat(); // eat operator
+
+      Expression* right = parseExpression(precedence + 1);
+      left = new BinaryExpression(op, left, right);
     }
 
-    eat();
+    // Handle chained function calls (higher precedence)
+    else if (type == TokenType::OPEN_PARENT) {
+      left = parseCallExpression(left);
+    }
 
-    auto right = parseExpression(precedence + 1);
-
-    left = new BinaryExpression(op, left, right);
+    else {
+      break;
+    }
   }
 
   return left;
@@ -274,3 +302,23 @@ Statement* Parser::parseVarAssignment() {
 
   return new VariableAssignment(ident->symbol, right);
 };
+
+
+Expression* Parser::parseCallExpression(Expression* caller) {
+  expect(TokenType::OPEN_PARENT, "Expected '(' after function name");
+
+  std::vector<Expression*> args;
+
+  if (peak().type != TokenType::CLOSE_PARENT) {
+    args.push_back(parseExpression());
+
+    while (peak().type == TokenType::COMMA) {
+      eat(); // consume comma
+      args.push_back(parseExpression());
+    }
+  }
+
+  expect(TokenType::CLOSE_PARENT, "Expected ')' after function arguments");
+
+  return new CallExpression(caller, args);
+}

@@ -83,6 +83,22 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       return evaluateBinaryExpression(binExpr, env);
     }
 
+    case NodeType::FUNC_DECLARATION: {
+      auto fDecl = dynamic_cast<FunctionDeclaration*>(stmt);
+      if (!fDecl) {
+        Log::err("Invalid cast to FunctionDeclaration");
+      }
+      return evaluateFunctionDeclaration(fDecl, env);
+    }
+
+    case NodeType::CALL_EXPRESSION: {
+      auto callExpr = dynamic_cast<CallExpression*>(stmt);
+      if (!callExpr) {
+        Log::err("Invalid cast to CallExpression");
+      }
+      return evaluateCallExpression(callExpr, env);
+    }
+
     default:
       Log::err("This node has not been setup for interpretation: ", stmt->type);
       return new NullValue();
@@ -113,6 +129,11 @@ RuntimeValue* Interpreter::evaluateProgram(Program* program, Enviroment& env) {
   }
 
   return last;
+}
+
+RuntimeValue* Interpreter::evaluateFunctionDeclaration(FunctionDeclaration* decl, Enviroment& env) {
+  auto func = new FunctionValue(decl->name, decl->params, env, decl->body);
+  return env.declareVariable(decl->name, func, false);
 }
 
 RuntimeValue* Interpreter::evaluateBinaryExpression(BinaryExpression* binExpr, Enviroment& env) {
@@ -182,4 +203,44 @@ float Interpreter::evaluateNumericBinaryExpression(float left, float right, cons
 
   Log::err("Unknown numeric operator: " + op);
   return 0.0f;
+}
+
+RuntimeValue* Interpreter::evaluateCallExpression(CallExpression* expr, Enviroment& env) {
+  // Get the function being called
+  auto identifier = dynamic_cast<Identifier*>(expr->caller);
+  if (!identifier) {
+    Log::err("Call expression must be called on an identifier");
+  }
+
+  // Resolve the function value
+  RuntimeValue* funcVal = env.resolve(identifier->symbol).variables[identifier->symbol];
+  if (!funcVal || funcVal->type != ValueType::FUNCTION) {
+    Log::err("Attempted to call a non-function: ", identifier->symbol);
+  }
+
+  FunctionValue* function = static_cast<FunctionValue*>(funcVal);
+
+  // Check argument count
+  if (expr->arguments.size() != function->params.size()) {
+    Log::err("Function ", function->name, " expected ", function->params.size(), " arguments, but got ", expr->arguments.size());
+  }
+
+  // Evaluate arguments
+  std::vector<RuntimeValue*> args;
+  for (auto arg : expr->arguments) {
+    args.push_back(evaluate(arg, env));
+  }
+
+  // Create new function scope
+  Enviroment localEnv(&function->env);
+  for (size_t i = 0; i < function->params.size(); ++i) {
+    localEnv.declareVariable(function->params[i], args[i], false);
+  }
+
+  RuntimeValue* returnValue = nullptr;
+  for (auto stmt : function->body) {
+    returnValue = evaluate(stmt, localEnv);
+  }
+
+  return returnValue ? returnValue : new NullValue();
 }

@@ -196,6 +196,12 @@ public:
         Log::err("Error casting");
       }
       log("Result: {", cast->value, "}");
+    } else if (program->type == ValueType::FUNCTION) {
+      auto cast = static_cast<FunctionValue*>(program);
+      if (!cast) {
+        Log::err("Error casting");
+      }
+      log("Result: {function: ", cast->name, "}");
     } else {
       log("Unrecognized type in program result: ", program->type);
     }

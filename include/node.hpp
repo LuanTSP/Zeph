@@ -12,6 +12,7 @@ enum NodeType {
   FUNC_DECLARATION,
   // Compound Expressions
   BINARY_EXPRESSION,
+  CALL_EXPRESSION,
   // Literal Expresisons
   NULL_LITERAL,
   NUMERIC_LITERAL,
@@ -112,4 +113,13 @@ struct BinaryExpression : Expression {
   Expression *right;
 
   BinaryExpression(std::string op, Expression *left, Expression *right) : Expression(NodeType::BINARY_EXPRESSION), left(left), right(right), op(op) {};
+};
+
+struct CallExpression : Expression {
+  public:
+  Expression* caller;  // Typically an Identifier
+  std::vector<Expression*> arguments;
+
+  CallExpression(Expression* caller, std::vector<Expression*> args)
+    : Expression(NodeType::CALL_EXPRESSION), caller(caller), arguments(args) {}
 };
