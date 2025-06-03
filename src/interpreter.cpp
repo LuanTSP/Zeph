@@ -359,10 +359,9 @@ RuntimeValue* Interpreter::evaluateCallExpression(CallExpression* expr, Envirome
     RuntimeValue* result = evaluate(stmt, localEnv);
 
     if (result && result->type == ValueType::RETURN_VALUE) {
-      return static_cast<ReturnValue*>(result)->value;
+      returnValue = static_cast<ReturnValue*>(result)->value;
+      break;
     }
-
-    returnValue = result;
   }
 
   return returnValue ? returnValue : new NullValue();
