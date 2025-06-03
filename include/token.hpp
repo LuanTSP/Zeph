@@ -12,6 +12,7 @@ enum TokenType {
   LET,
   CONST,
   DEF,
+  IF,
   RETURN,
   NULL_TOKEN,
   BINARY_OP,
@@ -31,6 +32,5 @@ struct Token {
   TokenType type;
   std::string value;
   int line;
-  int col;
   Token(TokenType type, std::string value, int line);
 };

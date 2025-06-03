@@ -121,11 +121,51 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       return evaluateComparisonExpression(compExpr, env);
     }
 
+    case NodeType::IF_STATEMENT : {
+      auto ifStmt = dynamic_cast<IfStatement*>(stmt);
+      if (!ifStmt) {
+        Log::err("Invalid cast to IfStatement");
+      }
+      return evaluateIfStatement(ifStmt, env);
+    }
+
     default:
       Log::err("This node has not been setup for interpretation: ", stmt->type);
       return new NullValue();
   }
 }
+
+RuntimeValue* Interpreter::evaluateIfStatement(IfStatement* ifStmt, Enviroment& env) {
+  auto evalCond = evaluate(ifStmt->cond, env);
+  bool shouldEvalBody;
+  if (evalCond->type == ValueType::BOOLEAN) {
+    auto cast = static_cast<BooleanValue*>(evalCond);
+    if (!cast) {
+      Log::err("Error casting BooleanValue");
+    }
+
+    shouldEvalBody = cast->value == 1;
+
+  } else if (evalCond->type == ValueType::NUMBER_VALUE) {
+    auto cast = static_cast<NumberValue*>(evalCond);
+    if (!cast) {
+      Log::err("Error casting NumberValue");
+    }
+
+    shouldEvalBody = cast->value != 0;
+  } else {
+    Log::err("Cannot handle type ", evalCond->type, " in condition");
+  }
+
+  if (shouldEvalBody) {
+    
+    for (auto stmt : ifStmt->body) {
+      evaluate(stmt, env);
+    }
+  }
+
+  return new NullValue();
+};
 
 RuntimeValue* Interpreter::evaluateComparisonExpression(ComparisonExpression* comp, Enviroment& env) {
   auto lhs = evaluate(comp->lhs, env);

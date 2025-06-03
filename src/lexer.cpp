@@ -127,6 +127,8 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
         tokens.push_back(Token(TokenType::NULL_TOKEN, ident, line));
       } else if (ident == "true" || ident == "false") {
         tokens.push_back(Token(TokenType::BOOLEAN_TOKEN, ident, line));
+      } else if (ident == "if") {
+        tokens.push_back(Token(TokenType::IF, ident, line));
       } else {
         tokens.push_back(Token(TokenType::IDENTIFIER, ident, line));
       }

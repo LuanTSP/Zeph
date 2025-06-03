@@ -11,6 +11,7 @@ enum NodeType {
   VAR_ASSIGNMENT,
   FUNC_DECLARATION,
   RETURN_STATEMENT,
+  IF_STATEMENT,
   // Compound Expressions
   BINARY_EXPRESSION,
   CALL_EXPRESSION,
@@ -53,6 +54,14 @@ struct VarDeclaration : Statement {
   bool isConstant;
 
   VarDeclaration(std::string symbol, Expression* value, bool isConstant) : Statement(NodeType::VAR_DECLARATION), symbol(symbol), value(value), isConstant(isConstant) {}
+};
+
+struct IfStatement : Statement {
+  public:
+  Expression* cond = nullptr;
+  std::vector<Statement*> body;
+
+  IfStatement(Expression* cond, std::vector<Statement*> body) : Statement(NodeType::IF_STATEMENT), cond(cond), body(body) {};
 };
 
 struct FunctionDeclaration : Statement {

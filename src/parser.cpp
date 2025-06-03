@@ -261,6 +261,8 @@ Statement* Parser::parseStatement() {
     stmt = parseFunctionDeclaration();
   } else if (peak().type == TokenType::RETURN) { 
     stmt = parseReturnStatement();
+  } else if (peak().type == TokenType::IF) { 
+    stmt = parseIfStatement();
   } else {
     stmt = parseExpression();
   }
@@ -271,6 +273,29 @@ Statement* Parser::parseStatement() {
   expectOptionalSemicolon(message);
   
   return stmt;
+};
+
+Statement* Parser::parseIfStatement() {
+  eat(); // Eat if keyword
+  expect(TokenType::OPEN_PARENT, "Expected an open parenthesis '(' after 'if' keyword");
+
+  Expression* cond = parseExpression();
+  if (!cond) {
+    Log::err("Error parsing condition expression");
+  }
+
+  expect(TokenType::CLOSE_PARENT, "Expected close parenthesis, ')' after condition");
+
+  expect(TokenType::OPEN_BRACE, "if statement body must start with open braces '{'");
+
+  std::vector<Statement*> body;
+  while(peak().type != TokenType::CLOSE_BRACE) {
+    body.push_back(parseStatement());
+  }
+
+  expect(TokenType::CLOSE_BRACE, "if statement body must end with close braces '}'");
+
+  return new IfStatement(cond, body);
 };
 
 Statement* Parser::parseReturnStatement() {
