@@ -3,6 +3,7 @@
 #include "../include/lexer.hpp"
 #include "../include/node.hpp"
 #include <memory>
+#include <string>
 
 // CONSTRUCTOR 
 Parser::Parser() {};
@@ -121,7 +122,30 @@ Expression* Parser::parsePrimary() {
   Expression* expr = nullptr;
 
   switch (peak().type) {
+    
     case TokenType::NUMBER:
+      expr = new NumericLiteral(eat().value);
+      break;
+
+    case TokenType::BINARY_OP: // Parses unary operations (-, +)
+    Log::info(peak().value);
+      if (peak().value != "+" && peak().value != "-") {
+        Log::err("Unary operators can only be '+' and '-'");
+      } 
+
+      if (peak().value == "-") {
+        eat();
+        if (peak().type != TokenType::NUMBER) {
+          Log::err("Expected a number after unary operator");
+        }
+        expr = new NumericLiteral("-" + eat().value);
+        break;
+      }
+
+      eat();
+      if (peak().type != TokenType::NUMBER) {
+        Log::err("Expected a number after unary operator");
+      }
       expr = new NumericLiteral(eat().value);
       break;
 

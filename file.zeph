@@ -1,4 +1,8 @@
 def main() {
-
-  return 2
+  def mamamia() {
+    return "mamamia"
+  }
 }
+
+let m = main()
+m()
