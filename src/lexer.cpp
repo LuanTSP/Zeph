@@ -61,6 +61,13 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
     } else if (c == ')') {
       tokens.push_back(Token(TokenType::CLOSE_PARENT, ")", line));
     } else if (c == '=') {
+      if (file.peek() == '=') {
+        // Separate comparion token from equals token '=' / '=='
+        file.get(c);
+        tokens.push_back(Token(TokenType::COMPARISON, "==", line));
+        continue;
+      }
+
       tokens.push_back(Token(TokenType::EQUAL, "=", line));
     } else if (c == '"') {
       std::string str = "";

@@ -16,6 +16,7 @@ public:
   RuntimeValue* evaluateVariableDeclaration(VarDeclaration* decl, Enviroment& env);
   RuntimeValue* evaluateFunctionDeclaration(FunctionDeclaration* decl, Enviroment& env);
   RuntimeValue* evaluateCallExpression(CallExpression* expr, Enviroment& env);
+  RuntimeValue* evaluateComparisonExpression(ComparisonExpression* comp, Enviroment& env);
   RuntimeValue* evaluateVariableAssignment(VariableAssignment* assign, Enviroment& env);
   float evaluateNumericBinaryExpression(float leftValue, float rightValue, const std::string& op);
 };

@@ -1,5 +1,2 @@
-def main() { 
-  return "mamamia" 
-}
-
-main()
+let y = 2
+y == 2

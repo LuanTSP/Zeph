@@ -8,6 +8,7 @@ enum TokenType {
   BOOLEAN_TOKEN,
   STRING,
   EQUAL,
+  COMPARISON,
   LET,
   CONST,
   DEF,

@@ -193,6 +193,12 @@ Expression* Parser::parseExpression(int minPrec) {
       left = new BinaryExpression(op, left, right);
     }
 
+    else if (type == TokenType::COMPARISON) {
+      eat();
+      Expression* rhs = parseExpression();
+      return new ComparisonExpression(left, rhs);
+    }
+
     // Handle chained function calls (higher precedence)
     else if (type == TokenType::OPEN_PARENT) {
       left = parseCallExpression(left);

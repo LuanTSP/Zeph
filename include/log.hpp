@@ -130,6 +130,17 @@ public:
         break;
       }
 
+      case NodeType::BOOLEAN_LITERAL: {
+        auto bll = dynamic_cast<const BooleanLiteral*>(node);
+        if (!bll) {
+          err("Invalid BOOLEAN_LITERAL node cast");
+          return;
+        }
+        printIndent();
+        log("BooleanLiteral: {", bll->value, "}");
+        break;
+      }
+
       case NodeType::BINARY_EXPRESSION: {
         auto bin = dynamic_cast<const BinaryExpression*>(node);
         if (!bin) {
@@ -154,6 +165,21 @@ public:
         printIndent();
         log("VaribleAssignment: ", assign->ident, " {");
         printAST(assign->expr, indent + 1);
+        printIndent();
+        log("}");
+        break;
+      }
+
+      case NodeType::COMPARISON_EXPRESSION: {
+        auto comp = dynamic_cast<const ComparisonExpression*>(node);
+        if (!comp) {
+          err("Invalid ComparisonExpression node cast.");
+          return;
+        }
+        printIndent();
+        log("ComparisonExpression: == {");
+        printAST(comp->lhs, indent + 1);
+        printAST(comp->rhs, indent + 1);
         printIndent();
         log("}");
         break;

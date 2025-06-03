@@ -53,7 +53,7 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
         Log::err("Invalid cast to BooleanLiteral");
       }
 
-      bool value = bll->value == "true" ? true : false;
+      bool value = bll->value == "true" ? 1 : 0;
       return new BooleanValue(value);
     }
 
@@ -113,11 +113,114 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       return new ReturnValue(evaluate(ret->value, env));
     }
 
+    case NodeType::COMPARISON_EXPRESSION: {
+      auto compExpr = dynamic_cast<ComparisonExpression*>(stmt);
+      if (!compExpr) {
+        Log::err("Invalid cast to ComparisonExpression");
+      }
+      return evaluateComparisonExpression(compExpr, env);
+    }
+
     default:
       Log::err("This node has not been setup for interpretation: ", stmt->type);
       return new NullValue();
   }
 }
+
+RuntimeValue* Interpreter::evaluateComparisonExpression(ComparisonExpression* comp, Enviroment& env) {
+  auto lhs = evaluate(comp->lhs, env);
+  auto rhs = evaluate(comp->rhs, env);
+  
+  bool result = false;
+
+  if (lhs->type == ValueType::NUMBER_VALUE) {
+    auto lhsV = static_cast<NumberValue*>(lhs);
+    if (!lhsV) {
+      Log::err("Error casting NumberValue");
+    }
+    
+    if (rhs->type == ValueType::NUMBER_VALUE) {
+      // NUMBER NUMBER
+      auto rhsV = static_cast<NumberValue*>(rhs);
+      if (!rhsV) {
+        Log::err("Error casting NumberValue");
+      }
+      result = lhsV->value == rhsV->value;
+    } else if (rhs->type == ValueType::BOOLEAN) {
+      // NUMBER BOOL
+      auto rhsV = static_cast<BooleanValue*>(rhs);
+      if (!rhsV) {
+        Log::err("Error casting BooleanValue");
+      }
+      if (lhsV->value == 1 && rhsV->value == 1) {
+        result = true;
+      } else if (lhsV->value == 0 && rhsV->value == 0) {
+        result = true;
+      }
+    }
+  } else if (lhs->type == ValueType::NULL_VALUE) {
+    auto lhsV = static_cast<NullValue*>(lhs);
+    if (!lhsV) {
+      Log::err("Error casting NullValue");
+    }
+
+    if (rhs->type == ValueType::NULL_VALUE) {
+      auto rhsV = static_cast<NullValue*>(rhs);
+      if (!rhsV) {
+        Log::err("Error casting NullValue");
+      }
+
+      result = true;
+    }
+  } else if (lhs->type == ValueType::STRING_VALUE) {
+    auto lhsV = static_cast<StringValue*>(lhs);
+    if (!lhsV) {
+      Log::err("Error casting StringValue");
+    }
+
+    if (rhs->type == ValueType::STRING_VALUE) {
+      auto rhsV = static_cast<StringValue*>(rhs);
+      if (!rhsV) {
+        Log::err("Error casting StringValue");
+      }
+
+      result = lhsV->value == rhsV->value;
+    }
+  } else if (lhs->type == ValueType::BOOLEAN) {
+    auto lhsV = static_cast<BooleanValue*>(lhs);
+    if (!lhsV) {
+      Log::err("Error casting BooleanValue");
+    }
+
+    if (rhs->type == ValueType::NUMBER_VALUE) {
+      // NUMBER NUMBER
+      auto rhsV = static_cast<NumberValue*>(rhs);
+      if (!rhsV) {
+        Log::err("Error casting NumberValue");
+      }
+      result = lhsV->value == rhsV->value;
+    } else if (rhs->type == ValueType::BOOLEAN) {
+      // NUMBER BOOL
+      auto rhsV = static_cast<BooleanValue*>(rhs);
+      if (!rhsV) {
+        Log::err("Error casting BooleanValue");
+      }
+      if (lhsV->value == 1 && rhsV->value == 1) {
+        result = true;
+      } else if (lhsV->value == 0 && rhsV->value == 0) {
+        result = true;
+      }
+    }
+  } else {
+    Log::err("Unrecognized type ", lhs->type, " in comparion");
+  }
+
+  // Boolean Null
+  // Boolean Number
+  // Boolean String
+  // Boolean Number
+  return new BooleanValue(result);
+};
 
 RuntimeValue* Interpreter::evaluateVariableAssignment(VariableAssignment* assign, Enviroment& env) {
   auto value = evaluate(assign->expr, env);
