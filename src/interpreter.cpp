@@ -129,10 +129,84 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       return evaluateIfStatement(ifStmt, env);
     }
 
+    case NodeType::WHILE_STATEMENT : {
+      auto whileStmt = dynamic_cast<WhileStatement*>(stmt);
+      if (!whileStmt) {
+        Log::err("Invalid cast to WhileStatement");
+      }
+      return evaluateWhileStatement(whileStmt, env);
+    }
+
     default:
       Log::err("This node has not been setup for interpretation: ", stmt->type);
       return new NullValue();
   }
+}
+
+RuntimeValue* Interpreter::evaluateWhileStatement(WhileStatement* whileStmt, Enviroment& env) {
+  auto evalCond = evaluate(whileStmt->cond, env);
+  bool shouldEvalBody;
+
+  if (evalCond->type == ValueType::BOOLEAN) {
+    auto cast = static_cast<BooleanValue*>(evalCond);
+    if (!cast) {
+      Log::err("Error casting BooleanValue");
+    }
+
+    shouldEvalBody = cast->value == 1;
+
+  } else if (evalCond->type == ValueType::NUMBER_VALUE) {
+    auto cast = static_cast<NumberValue*>(evalCond);
+    if (!cast) {
+      Log::err("Error casting NumberValue");
+    }
+
+    shouldEvalBody = cast->value != 0;
+  } else {
+    Log::err("Cannot handle type ", evalCond->type, " in condition");
+  }
+
+  RuntimeValue* toReturn = nullptr;
+  bool gotReturnStmt = false;
+
+  while (shouldEvalBody) {
+    for (auto stmt : whileStmt->body) {
+      auto value = evaluate(stmt, env);
+
+      if (value->type == ValueType::RETURN_VALUE) {
+        toReturn = static_cast<ReturnValue*>(value);
+        gotReturnStmt = true;
+        break;
+      }
+    }
+
+    if (gotReturnStmt) {
+      break;
+    }
+
+    evalCond = evaluate(whileStmt->cond, env);
+
+    if (evalCond->type == ValueType::BOOLEAN) {
+      auto cast = static_cast<BooleanValue*>(evalCond);
+      if (!cast) {
+        Log::err("Error casting BooleanValue");
+      }
+
+      shouldEvalBody = cast->value == 1;
+
+    } else if (evalCond->type == ValueType::NUMBER_VALUE) {
+      auto cast = static_cast<NumberValue*>(evalCond);
+      if (!cast) {
+        Log::err("Error casting NumberValue");
+      }
+
+      shouldEvalBody = cast->value != 0;
+    } else {
+      Log::err("Cannot handle type ", evalCond->type, " in condition");
+    }
+  }
+
+  return toReturn ? toReturn : new NullValue();
 }
 
 RuntimeValue* Interpreter::evaluateIfStatement(IfStatement* ifStmt, Enviroment& env) {
@@ -161,19 +235,19 @@ RuntimeValue* Interpreter::evaluateIfStatement(IfStatement* ifStmt, Enviroment& 
 
   if (shouldEvalBody) {
     for (auto stmt : ifStmt->ifBody) {
-      if (stmt->type == NodeType::RETURN_STATEMENT) {
-        toReturn = static_cast<ReturnValue*>(evaluate(stmt, env));
+      auto value = evaluate(stmt, env);
+      if (value->type == ValueType::RETURN_VALUE) {
+        toReturn = static_cast<ReturnValue*>(value);
         break;
       }
-      evaluate(stmt, env);
     }
   } else {
     for (auto stmt : ifStmt->elseBody) {
-      if (stmt->type == NodeType::RETURN_STATEMENT) {
-        toReturn = static_cast<ReturnValue*>(evaluate(stmt, env));
+      auto value = evaluate(stmt, env);
+      if (value->type == ValueType::RETURN_VALUE) {
+        toReturn = static_cast<ReturnValue*>(value);
         break;
       }
-      evaluate(stmt, env);
     }
   }
 
@@ -403,10 +477,7 @@ RuntimeValue* Interpreter::evaluateCallExpression(CallExpression* expr, Envirome
   for (auto stmt : function->body) {
     RuntimeValue* result = evaluate(stmt, localEnv);
 
-    if (stmt->type == NodeType::IF_STATEMENT && result->type == ValueType::RETURN_VALUE) {
-      returnValue = result;
-      break;
-    } else if (result && result->type == ValueType::RETURN_VALUE) {
+    if (result && result->type == ValueType::RETURN_VALUE) {
       returnValue = static_cast<ReturnValue*>(result)->value;
       break;
     }

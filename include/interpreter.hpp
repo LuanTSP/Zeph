@@ -19,5 +19,6 @@ public:
   RuntimeValue* evaluateComparisonExpression(ComparisonExpression* comp, Enviroment& env);
   RuntimeValue* evaluateVariableAssignment(VariableAssignment* assign, Enviroment& env);
   RuntimeValue* evaluateIfStatement(IfStatement* ifStmt, Enviroment& env);
+  RuntimeValue* evaluateWhileStatement(WhileStatement* whileStmt, Enviroment& env);
   float evaluateNumericBinaryExpression(float leftValue, float rightValue, const std::string& op);
 };

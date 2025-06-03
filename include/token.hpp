@@ -14,6 +14,7 @@ enum TokenType {
   DEF,
   IF,
   ELSE,
+  WHILE,
   RETURN,
   NULL_TOKEN,
   BINARY_OP,

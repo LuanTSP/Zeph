@@ -1,18 +1,17 @@
-def main() {
-  if (false) {
-    return 1
-  } else {
-    return "mamamia"
-  }
+let i = 1
+let j = 0
 
-  let y = 1
-  return y
+def main() {
+  while (i == 1) {
+    j = j + 1
+    if (j == 2) {
+      j = j + 25
+      return j
+    } else {
+      j = "mamamia"
+      return j
+    }
+  }
 }
 
 main()
-
-# if (false) {
-#   return 1
-# } else {
-#   0
-# }

@@ -263,6 +263,8 @@ Statement* Parser::parseStatement() {
     stmt = parseReturnStatement();
   } else if (peak().type == TokenType::IF) { 
     stmt = parseIfStatement();
+  } else if (peak().type == TokenType::WHILE) { 
+    stmt = parseWhileStatement();
   } else {
     stmt = parseExpression();
   }
@@ -273,6 +275,33 @@ Statement* Parser::parseStatement() {
   expectOptionalSemicolon(message);
   
   return stmt;
+};
+
+Statement* Parser::parseWhileStatement() {
+  eat(); // Eat while keyword
+  expect(TokenType::OPEN_PARENT, "Expected an open parenthesis '(' after 'while' keyword");
+
+  if (peak().type == TokenType::CLOSE_PARENT) {
+    Log::err("Expected expression inside parenthesis '()' in line ", peak().line);
+  }
+
+  Expression* cond = parseExpression();
+  if (!cond) {
+    Log::err("Error parsing condition expression");
+  }
+
+  expect(TokenType::CLOSE_PARENT, "Expected close parenthesis, ')' after condition");
+
+  expect(TokenType::OPEN_BRACE, "while statement body must start with open brace '{'");
+
+  std::vector<Statement*> body;
+  while(peak().type != TokenType::END_OF_FILE && peak().type != TokenType::CLOSE_BRACE) {
+    body.push_back(parseStatement());
+  }
+
+  expect(TokenType::CLOSE_BRACE, "'while' statement body must end with close braces '}'");
+
+  return new WhileStatement(cond, body);
 };
 
 Statement* Parser::parseIfStatement() {

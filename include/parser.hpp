@@ -34,4 +34,5 @@ class Parser {
   Statement* parseFunctionDeclaration();
   Statement* parseVarAssignment();
   Statement* parseIfStatement();
+  Statement* parseWhileStatement();
 };
