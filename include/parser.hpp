@@ -23,8 +23,11 @@ class Parser {
   bool isNextTokenOnSameLine();
   Program parse(std::string& filepath);
   Expression* parsePrimary();
-  Expression* parseExpression(int minPrec = -1);
+  Expression* parseExpression();
   Expression* parseCallExpression(Expression* caller);
+  Expression* parseComparisonExpression();
+  Expression* parseAdditiveExpression();
+  Expression* parseMultiplicativeExpression();
   Statement* parseStatement();
   Statement* parseReturnStatement();
   Statement* parseVarDeclaration();

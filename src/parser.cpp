@@ -160,56 +160,69 @@ Expression* Parser::parsePrimary() {
   return expr;
 }
 
-// Orders Of Prescidence
-// Assignment              0
-// Object                  1
-// AdditiveExpr            2
-// MultiplicitaveExpr      3
-// Call                    4
-// Member                  5
-// PrimaryExpr             6
+/* Orders Of Prescidence */
+// PrimaryExpr / Call
+// MultiplicitaveExpr
+// AdditiveExpr
+// Comparison
 
 // COMPOUND EXPRESSIONS - result in values - binaryOps
-Expression* Parser::parseExpression(int minPrec) {
+Expression* Parser::parseMultiplicativeExpression() {
   Expression* left = parsePrimary();
 
-  while (true) {
-    TokenType type = peak().type;
+  while (peak().type == TokenType::BINARY_OP && (peak().value == "*" || peak().value == "/" || peak().value == "%")) {
+    std::string op = eat().value;
+    Expression* right = parsePrimary(); // The right operand is another primary expression
+    left = new BinaryExpression(op, left, right);
+  }
+  return left;
+}
 
-    // Handle binary operators
-    if (type == TokenType::BINARY_OP) {
-      int precedence;
-      std::string op = peak().value;
+// Handles addition and subtraction
+Expression* Parser::parseAdditiveExpression() {
+  Expression* left = parseMultiplicativeExpression();
 
-      if (op == "+" || op == "-") precedence = 0;
-      else if (op == "*" || op == "/" || op == "%") precedence = 1;
-      else Log::err("Unknown binary operator: ", op);
+  while (peak().type == TokenType::BINARY_OP && (peak().value == "+" || peak().value == "-")) {
+    std::string op = eat().value; // Consume the operator
+    Expression* right = parseMultiplicativeExpression();
+    left = new BinaryExpression(op, left, right);
+  }
+  return left;
+}
 
-      if (precedence < minPrec) break;
+// Handles comparison operators
+Expression* Parser::parseComparisonExpression() {
+  Expression* left = parseAdditiveExpression();
 
-      eat(); // eat operator
+  while (peak().type == TokenType::COMPARISON) {
+    std::string op = eat().value; // Consume the comparison operator
+    Expression* right = parseAdditiveExpression(); // The right operand is another additive expression
+    left = new ComparisonExpression(left, right);
+  }
+  return left;
+}
 
-      Expression* right = parseExpression(precedence + 1);
-      left = new BinaryExpression(op, left, right);
-    }
+Expression* Parser::parseExpression() {
+  return parseComparisonExpression();
+}
 
-    else if (type == TokenType::COMPARISON) {
-      eat();
-      Expression* rhs = parseExpression();
-      return new ComparisonExpression(left, rhs);
-    }
+Expression* Parser::parseCallExpression(Expression* caller) {
+  eat(); // Eat Open Parent '(' Token
 
-    // Handle chained function calls (higher precedence)
-    else if (type == TokenType::OPEN_PARENT) {
-      left = parseCallExpression(left);
-    }
+  std::vector<Expression*> args;
 
-    else {
-      break;
+  if (peak().type != TokenType::CLOSE_PARENT) {
+    args.push_back(parseExpression());
+
+    while (peak().type == TokenType::COMMA) {
+      eat(); // consume comma
+      args.push_back(parseExpression());
     }
   }
 
-  return left;
+  expect(TokenType::CLOSE_PARENT, "Expected ')' after function arguments");
+
+  return new CallExpression(caller, args);
 }
 
 // STATEMENTS - do not result in values - varDeclarations
@@ -320,23 +333,3 @@ Statement* Parser::parseVarAssignment() {
 
   return new VariableAssignment(ident->symbol, right);
 };
-
-
-Expression* Parser::parseCallExpression(Expression* caller) {
-  expect(TokenType::OPEN_PARENT, "Expected '(' after function name");
-
-  std::vector<Expression*> args;
-
-  if (peak().type != TokenType::CLOSE_PARENT) {
-    args.push_back(parseExpression());
-
-    while (peak().type == TokenType::COMMA) {
-      eat(); // consume comma
-      args.push_back(parseExpression());
-    }
-  }
-
-  expect(TokenType::CLOSE_PARENT, "Expected ')' after function arguments");
-
-  return new CallExpression(caller, args);
-}
