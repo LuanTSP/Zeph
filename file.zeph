@@ -1,9 +1,18 @@
-let y;
+def main() {
+  if (false) {
+    return 1
+  } else {
+    return "mamamia"
+  }
 
-if () {
-  y = "Entered If"
-} else {
-  y = "Entered Else"
+  let y = 1
+  return y
 }
 
-y
+main()
+
+# if (false) {
+#   return 1
+# } else {
+#   0
+# }

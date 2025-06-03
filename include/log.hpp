@@ -228,6 +228,37 @@ public:
         Log::err("Error casting");
       }
       log("Result: {function: ", cast->name, "}");
+    } else if (program->type == ValueType::RETURN_VALUE) {
+      auto cast = static_cast<ReturnValue*>(program);
+      if (!cast) {
+        Log::err("Error casting");
+      }
+      
+      if (cast->value->type == ValueType::NUMBER_VALUE) {
+        auto result = static_cast<NumberValue*>(cast->value);
+        if (!result) {
+          Log::err("Error casting");
+        }
+        log("Result: {", result->value, "}");
+      } else if (cast->value->type == ValueType::BOOLEAN) {
+        auto result = static_cast<BooleanValue*>(cast->value);
+        if (!result) {
+          Log::err("Error casting");
+        }
+        log("Result: {", result->value, "}");
+      } else if (cast->value->type == ValueType::STRING_VALUE) {
+        auto result = static_cast<StringValue*>(cast->value);
+        if (!result) {
+          Log::err("Error casting");
+        }
+        log("Result: {\"", result->value, "\"}");
+      } else if (cast->value->type == ValueType::NULL_VALUE) {
+        auto result = static_cast<NullValue*>(cast->value);
+        if (!result) {
+          Log::err("Error casting");
+        }
+        log("Result: {", result->value, "}");
+      }
     } else {
       log("Unrecognized type in program result: ", program->type);
     }

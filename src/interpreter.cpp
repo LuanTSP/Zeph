@@ -157,18 +157,27 @@ RuntimeValue* Interpreter::evaluateIfStatement(IfStatement* ifStmt, Enviroment& 
     Log::err("Cannot handle type ", evalCond->type, " in condition");
   }
 
+  RuntimeValue* toReturn = nullptr;
+
   if (shouldEvalBody) {
-    
     for (auto stmt : ifStmt->ifBody) {
+      if (stmt->type == NodeType::RETURN_STATEMENT) {
+        toReturn = static_cast<ReturnValue*>(evaluate(stmt, env));
+        break;
+      }
       evaluate(stmt, env);
     }
   } else {
     for (auto stmt : ifStmt->elseBody) {
+      if (stmt->type == NodeType::RETURN_STATEMENT) {
+        toReturn = static_cast<ReturnValue*>(evaluate(stmt, env));
+        break;
+      }
       evaluate(stmt, env);
     }
   }
 
-  return new NullValue();
+  return toReturn ? toReturn : new NullValue();
 };
 
 RuntimeValue* Interpreter::evaluateComparisonExpression(ComparisonExpression* comp, Enviroment& env) {
@@ -259,10 +268,6 @@ RuntimeValue* Interpreter::evaluateComparisonExpression(ComparisonExpression* co
     Log::err("Unrecognized type ", lhs->type, " in comparion");
   }
 
-  // Boolean Null
-  // Boolean Number
-  // Boolean String
-  // Boolean Number
   return new BooleanValue(result);
 };
 
@@ -307,10 +312,6 @@ RuntimeValue* Interpreter::evaluateBinaryExpression(BinaryExpression* binExpr, E
       static_cast<NumberValue*>(right)->value,
       binExpr->op
     );
-
-    // Clean up intermediate values
-    // delete left;
-    // delete right;
 
     return new NumberValue(result);
     
@@ -402,7 +403,10 @@ RuntimeValue* Interpreter::evaluateCallExpression(CallExpression* expr, Envirome
   for (auto stmt : function->body) {
     RuntimeValue* result = evaluate(stmt, localEnv);
 
-    if (result && result->type == ValueType::RETURN_VALUE) {
+    if (stmt->type == NodeType::IF_STATEMENT && result->type == ValueType::RETURN_VALUE) {
+      returnValue = result;
+      break;
+    } else if (result && result->type == ValueType::RETURN_VALUE) {
       returnValue = static_cast<ReturnValue*>(result)->value;
       break;
     }
