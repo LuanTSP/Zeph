@@ -13,6 +13,7 @@ enum TokenType {
   CONST,
   DEF,
   IF,
+  ELSE,
   RETURN,
   NULL_TOKEN,
   BINARY_OP,

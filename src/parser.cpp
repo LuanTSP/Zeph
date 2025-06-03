@@ -279,6 +279,10 @@ Statement* Parser::parseIfStatement() {
   eat(); // Eat if keyword
   expect(TokenType::OPEN_PARENT, "Expected an open parenthesis '(' after 'if' keyword");
 
+  if (peak().type == TokenType::CLOSE_PARENT) {
+    Log::err("Expected expression inside parenthesis '()' in line ", peak().line);
+  }
+
   Expression* cond = parseExpression();
   if (!cond) {
     Log::err("Error parsing condition expression");
@@ -286,16 +290,28 @@ Statement* Parser::parseIfStatement() {
 
   expect(TokenType::CLOSE_PARENT, "Expected close parenthesis, ')' after condition");
 
-  expect(TokenType::OPEN_BRACE, "if statement body must start with open braces '{'");
+  expect(TokenType::OPEN_BRACE, "if statement body must start with open brace '{'");
 
-  std::vector<Statement*> body;
-  while(peak().type != TokenType::CLOSE_BRACE) {
-    body.push_back(parseStatement());
+  std::vector<Statement*> ifBody;
+  while(peak().type != TokenType::END_OF_FILE && peak().type != TokenType::CLOSE_BRACE) {
+    ifBody.push_back(parseStatement());
   }
 
-  expect(TokenType::CLOSE_BRACE, "if statement body must end with close braces '}'");
+  expect(TokenType::CLOSE_BRACE, "'if' statement body must end with close braces '}'");
 
-  return new IfStatement(cond, body);
+  std::vector<Statement*> elseBody; 
+  if (peak().type == TokenType::ELSE) {
+    eat();
+    expect(TokenType::OPEN_BRACE, "Expected open brace '{' after 'else' keyword");
+
+    while(peak().type != TokenType::END_OF_FILE && peak().type != TokenType::CLOSE_BRACE) {
+      elseBody.push_back(parseStatement());
+    }
+
+    expect(TokenType::CLOSE_BRACE, "Expected close crace '}' when ending 'else' statement body");
+  }
+
+  return new IfStatement(cond, ifBody, elseBody);
 };
 
 Statement* Parser::parseReturnStatement() {

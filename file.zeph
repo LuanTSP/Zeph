@@ -1,5 +1,9 @@
+let y;
+
 if () {
-  let y = "mamamia"
+  y = "Entered If"
+} else {
+  y = "Entered Else"
 }
 
 y

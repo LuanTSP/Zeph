@@ -59,9 +59,10 @@ struct VarDeclaration : Statement {
 struct IfStatement : Statement {
   public:
   Expression* cond = nullptr;
-  std::vector<Statement*> body;
+  std::vector<Statement*> ifBody;
+  std::vector<Statement*> elseBody;
 
-  IfStatement(Expression* cond, std::vector<Statement*> body) : Statement(NodeType::IF_STATEMENT), cond(cond), body(body) {};
+  IfStatement(Expression* cond, std::vector<Statement*> ifBody, std::vector<Statement*> elseBody) : Statement(NodeType::IF_STATEMENT), cond(cond), ifBody(ifBody), elseBody(elseBody) {};
 };
 
 struct FunctionDeclaration : Statement {

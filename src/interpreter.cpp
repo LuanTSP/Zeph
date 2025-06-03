@@ -159,7 +159,11 @@ RuntimeValue* Interpreter::evaluateIfStatement(IfStatement* ifStmt, Enviroment& 
 
   if (shouldEvalBody) {
     
-    for (auto stmt : ifStmt->body) {
+    for (auto stmt : ifStmt->ifBody) {
+      evaluate(stmt, env);
+    }
+  } else {
+    for (auto stmt : ifStmt->elseBody) {
       evaluate(stmt, env);
     }
   }
