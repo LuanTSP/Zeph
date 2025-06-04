@@ -1,17 +1,25 @@
-let i = 1
-let j = 0
+def fib(n) {
+  let a = 1
+  let b = 1
 
-def main() {
-  while (i == 1) {
-    j = j + 1
-    if (j == 2) {
-      j = j + 25
-      return j
-    } else {
-      j = "mamamia"
-      return j
-    }
+  if (n < 2) {
+    return 1;
   }
+
+  let i = 0
+  let aux;
+  while (i <= n - 2) {
+    aux = b
+    b = a + b
+    a = aux
+    i = i + 1;
+  }
+
+  return b
 }
 
-main()
+def ratio(n) {
+  return fib(n + 1) / fib(n) 
+}
+
+ratio(100)

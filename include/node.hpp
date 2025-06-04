@@ -156,6 +156,7 @@ struct ComparisonExpression : Expression {
   public:
   Expression* lhs = nullptr;
   Expression* rhs = nullptr;
+  std::string op;
 
-  ComparisonExpression(Expression* lhs, Expression* rhs) : Expression(NodeType::COMPARISON_EXPRESSION), lhs(lhs), rhs(rhs) {};
+  ComparisonExpression(Expression* lhs, Expression* rhs, std::string op) : Expression(NodeType::COMPARISON_EXPRESSION), lhs(lhs), rhs(rhs), op(op) {};
 };

@@ -62,13 +62,31 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
       tokens.push_back(Token(TokenType::CLOSE_PARENT, ")", line));
     } else if (c == '=') {
       if (file.peek() == '=') {
-        // Separate comparion token from equals token '=' / '=='
+        // Separate '=' / '=='
         file.get(c);
         tokens.push_back(Token(TokenType::COMPARISON, "==", line));
         continue;
       }
 
       tokens.push_back(Token(TokenType::EQUAL, "=", line));
+    } else if (c == '<') {
+      if (file.peek() == '=') {
+        // Separate '<' / '<='
+        file.get(c);
+        tokens.push_back(Token(TokenType::COMPARISON, "<=", line));
+        continue;
+      }
+
+      tokens.push_back(Token(TokenType::COMPARISON, "<", line));
+    } else if (c == '>') {
+      if (file.peek() == '=') {
+        // Separate '>' / '>='
+        file.get(c);
+        tokens.push_back(Token(TokenType::COMPARISON, ">=", line));
+        continue;
+      }
+
+      tokens.push_back(Token(TokenType::COMPARISON, ">", line));
     } else if (c == '"') {
       std::string str = "";
       file.get(c); // advance "

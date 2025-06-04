@@ -220,8 +220,8 @@ Expression* Parser::parseComparisonExpression() {
 
   while (peak().type == TokenType::COMPARISON) {
     std::string op = eat().value; // Consume the comparison operator
-    Expression* right = parseAdditiveExpression(); // The right operand is another additive expression
-    left = new ComparisonExpression(left, right);
+    Expression* right = parseAdditiveExpression();
+    left = new ComparisonExpression(left, right, op);
   }
   return left;
 }

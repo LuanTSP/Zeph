@@ -162,6 +162,8 @@ RuntimeValue* Interpreter::evaluateWhileStatement(WhileStatement* whileStmt, Env
     }
 
     shouldEvalBody = cast->value != 0;
+  } else if (evalCond->type == ValueType::NULL_VALUE) {
+    shouldEvalBody = false;
   } else {
     Log::err("Cannot handle type ", evalCond->type, " in condition");
   }
@@ -227,6 +229,8 @@ RuntimeValue* Interpreter::evaluateIfStatement(IfStatement* ifStmt, Enviroment& 
     }
 
     shouldEvalBody = cast->value != 0;
+  } else if (evalCond->type == ValueType::NULL_VALUE) {
+    shouldEvalBody = false;
   } else {
     Log::err("Cannot handle type ", evalCond->type, " in condition");
   }
@@ -255,94 +259,179 @@ RuntimeValue* Interpreter::evaluateIfStatement(IfStatement* ifStmt, Enviroment& 
 };
 
 RuntimeValue* Interpreter::evaluateComparisonExpression(ComparisonExpression* comp, Enviroment& env) {
-  auto lhs = evaluate(comp->lhs, env);
-  auto rhs = evaluate(comp->rhs, env);
-  
+  bool result = calculateComparizon(comp, env);
+
+  return new BooleanValue(result);
+};
+
+bool Interpreter::calculateComparizon(ComparisonExpression* comp, Enviroment& env) {
+  RuntimeValue* lhs = evaluate(comp->lhs, env);
+  RuntimeValue* rhs = evaluate(comp->rhs, env);
+  std::string op = comp->op;
+
   bool result = false;
 
-  if (lhs->type == ValueType::NUMBER_VALUE) {
-    auto lhsV = static_cast<NumberValue*>(lhs);
-    if (!lhsV) {
-      Log::err("Error casting NumberValue");
-    }
-    
-    if (rhs->type == ValueType::NUMBER_VALUE) {
-      // NUMBER NUMBER
-      auto rhsV = static_cast<NumberValue*>(rhs);
-      if (!rhsV) {
+  if (op == "==") {
+    if (lhs->type == ValueType::NUMBER_VALUE) {
+      auto lhsV = static_cast<NumberValue*>(lhs);
+      if (!lhsV) {
         Log::err("Error casting NumberValue");
       }
-      result = lhsV->value == rhsV->value;
-    } else if (rhs->type == ValueType::BOOLEAN) {
-      // NUMBER BOOL
-      auto rhsV = static_cast<BooleanValue*>(rhs);
-      if (!rhsV) {
-        Log::err("Error casting BooleanValue");
+      
+      if (rhs->type == ValueType::NUMBER_VALUE) {
+        // NUMBER NUMBER
+        auto rhsV = static_cast<NumberValue*>(rhs);
+        if (!rhsV) {
+          Log::err("Error casting NumberValue");
+        }
+        result = lhsV->value == rhsV->value;
+      } else if (rhs->type == ValueType::BOOLEAN) {
+        // NUMBER BOOL
+        auto rhsV = static_cast<BooleanValue*>(rhs);
+        if (!rhsV) {
+          Log::err("Error casting BooleanValue");
+        }
+        if (lhsV->value == 1 && rhsV->value == 1) {
+          result = true;
+        } else if (lhsV->value == 0 && rhsV->value == 0) {
+          result = true;
+        }
       }
-      if (lhsV->value == 1 && rhsV->value == 1) {
-        result = true;
-      } else if (lhsV->value == 0 && rhsV->value == 0) {
-        result = true;
-      }
-    }
-  } else if (lhs->type == ValueType::NULL_VALUE) {
-    auto lhsV = static_cast<NullValue*>(lhs);
-    if (!lhsV) {
-      Log::err("Error casting NullValue");
-    }
-
-    if (rhs->type == ValueType::NULL_VALUE) {
-      auto rhsV = static_cast<NullValue*>(rhs);
-      if (!rhsV) {
+    } else if (lhs->type == ValueType::NULL_VALUE) {
+      auto lhsV = static_cast<NullValue*>(lhs);
+      if (!lhsV) {
         Log::err("Error casting NullValue");
       }
 
-      result = true;
-    }
-  } else if (lhs->type == ValueType::STRING_VALUE) {
-    auto lhsV = static_cast<StringValue*>(lhs);
-    if (!lhsV) {
-      Log::err("Error casting StringValue");
-    }
+      if (rhs->type == ValueType::NULL_VALUE) {
+        auto rhsV = static_cast<NullValue*>(rhs);
+        if (!rhsV) {
+          Log::err("Error casting NullValue");
+        }
 
-    if (rhs->type == ValueType::STRING_VALUE) {
-      auto rhsV = static_cast<StringValue*>(rhs);
-      if (!rhsV) {
+        result = true;
+      }
+    } else if (lhs->type == ValueType::STRING_VALUE) {
+      auto lhsV = static_cast<StringValue*>(lhs);
+      if (!lhsV) {
         Log::err("Error casting StringValue");
       }
 
-      result = lhsV->value == rhsV->value;
-    }
-  } else if (lhs->type == ValueType::BOOLEAN) {
-    auto lhsV = static_cast<BooleanValue*>(lhs);
-    if (!lhsV) {
-      Log::err("Error casting BooleanValue");
-    }
+      if (rhs->type == ValueType::STRING_VALUE) {
+        auto rhsV = static_cast<StringValue*>(rhs);
+        if (!rhsV) {
+          Log::err("Error casting StringValue");
+        }
 
-    if (rhs->type == ValueType::NUMBER_VALUE) {
-      // NUMBER NUMBER
-      auto rhsV = static_cast<NumberValue*>(rhs);
-      if (!rhsV) {
-        Log::err("Error casting NumberValue");
+        result = lhsV->value == rhsV->value;
       }
-      result = lhsV->value == rhsV->value;
-    } else if (rhs->type == ValueType::BOOLEAN) {
-      // NUMBER BOOL
-      auto rhsV = static_cast<BooleanValue*>(rhs);
-      if (!rhsV) {
+    } else if (lhs->type == ValueType::BOOLEAN) {
+      auto lhsV = static_cast<BooleanValue*>(lhs);
+      if (!lhsV) {
         Log::err("Error casting BooleanValue");
       }
-      if (lhsV->value == 1 && rhsV->value == 1) {
-        result = true;
-      } else if (lhsV->value == 0 && rhsV->value == 0) {
-        result = true;
+
+      if (rhs->type == ValueType::NUMBER_VALUE) {
+        // NUMBER NUMBER
+        auto rhsV = static_cast<NumberValue*>(rhs);
+        if (!rhsV) {
+          Log::err("Error casting NumberValue");
+        }
+        result = lhsV->value == rhsV->value;
+      } else if (rhs->type == ValueType::BOOLEAN) {
+        // NUMBER BOOL
+        auto rhsV = static_cast<BooleanValue*>(rhs);
+        if (!rhsV) {
+          Log::err("Error casting BooleanValue");
+        }
+        if (lhsV->value == 1 && rhsV->value == 1) {
+          result = true;
+        } else if (lhsV->value == 0 && rhsV->value == 0) {
+          result = true;
+        }
       }
+    } else {
+      Log::err("Unrecognized type ", lhs->type, " in comparion");
+    }
+  } else if (op == "<" || op == "<=" || op == ">" || op == ">=") { // only support number x bool
+    if (lhs->type == ValueType::NUMBER_VALUE) {
+      auto lhsV = static_cast<NumberValue*>(lhs);
+      if (!lhsV) {
+        Log::err("Error casting NumberValue");
+      }
+
+      if (rhs->type == ValueType::NUMBER_VALUE) {
+        // NUMBER NUMBER
+        auto rhsV = static_cast<NumberValue*>(rhs);
+        if (!rhsV) {
+          Log::err("Error casting NumberValue");
+        }
+        
+        if (op == "<") return lhsV->value < rhsV->value;
+        else if (op == "<=") return lhsV->value <= rhsV->value;
+        else if (op == ">") return lhsV->value > rhsV->value;
+        else if (op == ">=") return lhsV->value >= rhsV->value;
+        else {
+          Log::err("Unrecognized operator ", op);
+        } 
+      } else if (rhs->type == ValueType::BOOLEAN) {
+        // NUMBER BOOL
+        auto rhsV = static_cast<BooleanValue*>(rhs);
+        if (!rhsV) {
+          Log::err("Error casting BooleanValue");
+        }
+
+        if (op == "<") return lhsV->value < rhsV->value;
+        else if (op == "<=") return lhsV->value <= rhsV->value;
+        else if (op == ">") return lhsV->value > rhsV->value;
+        else if (op == ">=") return lhsV->value >= rhsV->value;
+        else {
+          Log::err("Unrecognized operator ", op);
+        } 
+      }
+    } else if (lhs->type == ValueType::BOOLEAN) {
+      auto lhsV = static_cast<BooleanValue*>(lhs);
+      if (!lhsV) {
+        Log::err("Error casting BooleanValue");
+      }
+
+      if (rhs->type == ValueType::NUMBER_VALUE) {
+        // NUMBER NUMBER
+        auto rhsV = static_cast<NumberValue*>(rhs);
+        if (!rhsV) {
+          Log::err("Error casting NumberValue");
+        }
+        
+        if (op == "<") return lhsV->value < rhsV->value;
+        else if (op == "<=") return lhsV->value <= rhsV->value;
+        else if (op == ">") return lhsV->value > rhsV->value;
+        else if (op == ">=") return lhsV->value >= rhsV->value;
+        else {
+          Log::err("Unrecognized operator ", op);
+        } 
+      } else if (rhs->type == ValueType::BOOLEAN) {
+        // NUMBER BOOL
+        auto rhsV = static_cast<BooleanValue*>(rhs);
+        if (!rhsV) {
+          Log::err("Error casting BooleanValue");
+        }
+        
+        if (op == "<") return lhsV->value < rhsV->value;
+        else if (op == "<=") return lhsV->value <= rhsV->value;
+        else if (op == ">") return lhsV->value > rhsV->value;
+        else if (op == ">=") return lhsV->value >= rhsV->value;
+        else {
+          Log::err("Unrecognized operator ", op);
+        } 
+      }
+    } else {
+      Log::err("Unrecognized type ", lhs->type, " in comparion");
     }
   } else {
-    Log::err("Unrecognized type ", lhs->type, " in comparion");
+    Log::err("Unrecognized comparison operator \"", op, "\"");
   }
 
-  return new BooleanValue(result);
+  return result;
 };
 
 RuntimeValue* Interpreter::evaluateVariableAssignment(VariableAssignment* assign, Enviroment& env) {
@@ -381,7 +470,7 @@ RuntimeValue* Interpreter::evaluateBinaryExpression(BinaryExpression* binExpr, E
   RuntimeValue* right = evaluate(binExpr->right, env);
 
   if (left->type == ValueType::NUMBER_VALUE && right->type == ValueType::NUMBER_VALUE) {
-    float result = evaluateNumericBinaryExpression(
+    float result = calculateNumericBinaryExpression(
       static_cast<NumberValue*>(left)->value,
       static_cast<NumberValue*>(right)->value,
       binExpr->op
@@ -426,11 +515,11 @@ RuntimeValue* Interpreter::evaluateBinaryExpression(BinaryExpression* binExpr, E
   return nullptr;
 }
 
-float Interpreter::evaluateNumericBinaryExpression(float left, float right, const std::string& op) {
+float Interpreter::calculateNumericBinaryExpression(float left, float right, const std::string& op) {
   if (op == "+") return left + right;
-  if (op == "-") return left - right;
-  if (op == "*") return left * right;
-  if (op == "/") {
+  else if (op == "-") return left - right;
+  else if (op == "*") return left * right;
+  else if (op == "/") {
     if (right == 0.0f) {
       Log::err("Division by zero");
     }
