@@ -147,7 +147,7 @@ RuntimeValue* Interpreter::evaluateWhileStatement(WhileStatement* whileStmt, Env
   auto evalCond = evaluate(whileStmt->cond, env);
   bool shouldEvalBody;
 
-  if (evalCond->type == ValueType::BOOLEAN) {
+  if (evalCond->type == ValueType::BOOLEAN_VALUE) {
     auto cast = static_cast<BooleanValue*>(evalCond);
     if (!cast) {
       Log::err("Error casting BooleanValue");
@@ -188,7 +188,7 @@ RuntimeValue* Interpreter::evaluateWhileStatement(WhileStatement* whileStmt, Env
 
     evalCond = evaluate(whileStmt->cond, env);
 
-    if (evalCond->type == ValueType::BOOLEAN) {
+    if (evalCond->type == ValueType::BOOLEAN_VALUE) {
       auto cast = static_cast<BooleanValue*>(evalCond);
       if (!cast) {
         Log::err("Error casting BooleanValue");
@@ -214,7 +214,7 @@ RuntimeValue* Interpreter::evaluateWhileStatement(WhileStatement* whileStmt, Env
 RuntimeValue* Interpreter::evaluateIfStatement(IfStatement* ifStmt, Enviroment& env) {
   auto evalCond = evaluate(ifStmt->cond, env);
   bool shouldEvalBody;
-  if (evalCond->type == ValueType::BOOLEAN) {
+  if (evalCond->type == ValueType::BOOLEAN_VALUE) {
     auto cast = static_cast<BooleanValue*>(evalCond);
     if (!cast) {
       Log::err("Error casting BooleanValue");
@@ -285,7 +285,7 @@ bool Interpreter::calculateComparizon(ComparisonExpression* comp, Enviroment& en
           Log::err("Error casting NumberValue");
         }
         result = lhsV->value == rhsV->value;
-      } else if (rhs->type == ValueType::BOOLEAN) {
+      } else if (rhs->type == ValueType::BOOLEAN_VALUE) {
         // NUMBER BOOL
         auto rhsV = static_cast<BooleanValue*>(rhs);
         if (!rhsV) {
@@ -325,7 +325,7 @@ bool Interpreter::calculateComparizon(ComparisonExpression* comp, Enviroment& en
 
         result = lhsV->value == rhsV->value;
       }
-    } else if (lhs->type == ValueType::BOOLEAN) {
+    } else if (lhs->type == ValueType::BOOLEAN_VALUE) {
       auto lhsV = static_cast<BooleanValue*>(lhs);
       if (!lhsV) {
         Log::err("Error casting BooleanValue");
@@ -338,7 +338,7 @@ bool Interpreter::calculateComparizon(ComparisonExpression* comp, Enviroment& en
           Log::err("Error casting NumberValue");
         }
         result = lhsV->value == rhsV->value;
-      } else if (rhs->type == ValueType::BOOLEAN) {
+      } else if (rhs->type == ValueType::BOOLEAN_VALUE) {
         // NUMBER BOOL
         auto rhsV = static_cast<BooleanValue*>(rhs);
         if (!rhsV) {
@@ -374,7 +374,7 @@ bool Interpreter::calculateComparizon(ComparisonExpression* comp, Enviroment& en
         else {
           Log::err("Unrecognized operator ", op);
         } 
-      } else if (rhs->type == ValueType::BOOLEAN) {
+      } else if (rhs->type == ValueType::BOOLEAN_VALUE) {
         // NUMBER BOOL
         auto rhsV = static_cast<BooleanValue*>(rhs);
         if (!rhsV) {
@@ -389,7 +389,7 @@ bool Interpreter::calculateComparizon(ComparisonExpression* comp, Enviroment& en
           Log::err("Unrecognized operator ", op);
         } 
       }
-    } else if (lhs->type == ValueType::BOOLEAN) {
+    } else if (lhs->type == ValueType::BOOLEAN_VALUE) {
       auto lhsV = static_cast<BooleanValue*>(lhs);
       if (!lhsV) {
         Log::err("Error casting BooleanValue");
@@ -409,7 +409,7 @@ bool Interpreter::calculateComparizon(ComparisonExpression* comp, Enviroment& en
         else {
           Log::err("Unrecognized operator ", op);
         } 
-      } else if (rhs->type == ValueType::BOOLEAN) {
+      } else if (rhs->type == ValueType::BOOLEAN_VALUE) {
         // NUMBER BOOL
         auto rhsV = static_cast<BooleanValue*>(rhs);
         if (!rhsV) {
@@ -461,7 +461,7 @@ RuntimeValue* Interpreter::evaluateProgram(Program* program, Enviroment& env) {
 }
 
 RuntimeValue* Interpreter::evaluateFunctionDeclaration(FunctionDeclaration* decl, Enviroment& env) {
-  auto func = new FunctionValue(decl->name, decl->params, env, decl->body);
+  auto func = new FunctionValue(decl->name, decl->params, decl->body, nullptr, env);
   return env.declareVariable(decl->name, func, false);
 }
 
@@ -478,19 +478,19 @@ RuntimeValue* Interpreter::evaluateBinaryExpression(BinaryExpression* binExpr, E
 
     return new NumberValue(result);
     
-  } else if (left->type == ValueType::BOOLEAN && right->type == ValueType::BOOLEAN) {
+  } else if (left->type == ValueType::BOOLEAN_VALUE && right->type == ValueType::BOOLEAN_VALUE) {
     bool bLeft = static_cast<BooleanValue*>(left)->value;
     bool bRight = static_cast<BooleanValue*>(right)->value;
     
     return new NumberValue(bLeft + bRight);
 
-  } else if (left->type == ValueType::BOOLEAN && right->type == ValueType::NUMBER_VALUE) {
+  } else if (left->type == ValueType::BOOLEAN_VALUE && right->type == ValueType::NUMBER_VALUE) {
     bool bLeft = static_cast<BooleanValue*>(left)->value;
     float nRight = static_cast<NumberValue*>(right)->value;
     
     return new NumberValue(bLeft + nRight);
 
-  } else if (left->type == ValueType::NUMBER_VALUE && right->type == ValueType::BOOLEAN) {
+  } else if (left->type == ValueType::NUMBER_VALUE && right->type == ValueType::BOOLEAN_VALUE) {
     float nLeft = static_cast<NumberValue*>(left)->value;
     bool bRight = static_cast<BooleanValue*>(right)->value;
     
@@ -539,7 +539,7 @@ RuntimeValue* Interpreter::evaluateCallExpression(CallExpression* expr, Envirome
 
   // Resolve the function value
   RuntimeValue* funcVal = env.resolve(identifier->symbol).variables[identifier->symbol];
-  if (!funcVal || funcVal->type != ValueType::FUNCTION) {
+  if (!funcVal || funcVal->type != ValueType::FUNCTION_VALUE) {
     Log::err("Attempted to call a non-function: ", identifier->symbol);
   }
 
@@ -570,6 +570,11 @@ RuntimeValue* Interpreter::evaluateCallExpression(CallExpression* expr, Envirome
       returnValue = static_cast<ReturnValue*>(result)->value;
       break;
     }
+  }
+
+  // Run external call
+  if (function->extCall) {
+    function->extCall(args);
   }
 
   return returnValue ? returnValue : new NullValue();

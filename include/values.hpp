@@ -1,14 +1,15 @@
 #pragma once
 #include "node.hpp"
 #include "values.hpp"
+#include <functional>
 
 enum ValueType {
   NULL_VALUE,
   NUMBER_VALUE,
   STRING_VALUE,
   RETURN_VALUE,
-  BOOLEAN,
-  FUNCTION,
+  BOOLEAN_VALUE,
+  FUNCTION_VALUE,
 };
 
 class Enviroment;
@@ -49,7 +50,7 @@ struct StringValue : RuntimeValue {
 struct BooleanValue : RuntimeValue {
   public:
   bool value;
-  BooleanValue(bool value) : RuntimeValue(ValueType::BOOLEAN), value(value) {};
+  BooleanValue(bool value) : RuntimeValue(ValueType::BOOLEAN_VALUE), value(value) {};
 };
 
 struct FunctionValue : RuntimeValue {
@@ -58,7 +59,8 @@ struct FunctionValue : RuntimeValue {
   std::vector<std::string> params;
   Enviroment& env;
   std::vector<Statement*> body;
+  std::function<void(std::vector<RuntimeValue*> args)> extCall = nullptr;
   
-  FunctionValue(std::string& name, std::vector<std::string>& params, Enviroment& env, std::vector<Statement*>& body) : RuntimeValue(ValueType::FUNCTION), name(name), params(params), env(env), body(body) {}
+  FunctionValue(std::string& name, std::vector<std::string>& params, std::vector<Statement*>& body, std::function<void(std::vector<RuntimeValue*> args)> extCall, Enviroment& env) : RuntimeValue(ValueType::FUNCTION_VALUE), name(name), params(params), body(body), extCall(extCall), env(env) {}
 };
 

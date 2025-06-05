@@ -216,13 +216,13 @@ public:
         Log::err("Error casting");
       }
       log("Result: {", cast->value, "}");
-    } else if (program->type == ValueType::BOOLEAN) {
+    } else if (program->type == ValueType::BOOLEAN_VALUE) {
       auto cast = static_cast<BooleanValue*>(program);
       if (!cast) {
         Log::err("Error casting");
       }
       log("Result: {", cast->value, "}");
-    } else if (program->type == ValueType::FUNCTION) {
+    } else if (program->type == ValueType::FUNCTION_VALUE) {
       auto cast = static_cast<FunctionValue*>(program);
       if (!cast) {
         Log::err("Error casting");
@@ -240,7 +240,7 @@ public:
           Log::err("Error casting");
         }
         log("Result: {", result->value, "}");
-      } else if (cast->value->type == ValueType::BOOLEAN) {
+      } else if (cast->value->type == ValueType::BOOLEAN_VALUE) {
         auto result = static_cast<BooleanValue*>(cast->value);
         if (!result) {
           Log::err("Error casting");
