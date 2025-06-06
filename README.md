@@ -22,10 +22,11 @@ Zeph will support integration with **a custom C++ game engine**, making it easy 
 This opens up possibilities for rapid game prototyping or building complex interactive systems using Zeph’s concise syntax.
 
 ### 🟢 Features implemented
-- Variable declarations (let x = 1, const x)
+- Variable declarations (let x = 1, const x, const y = "string")
 - Variable assignments (x = 1)
 - User defined functions (def main(a, b) { #code })
 - Builtin functions (print, typeof)
+- Control Flow (break, continue)
 - Conditionals (if, else)
 - Loops (while)
 

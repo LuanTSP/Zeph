@@ -10,4 +10,15 @@ def main() {
   return i
 }
 
-print(main());
+def teste() {
+  let a = true
+  let b = false
+
+  return a
+}
+
+const mainRes = main()
+const testeRes = teste()
+
+print(mainRes)
+print(testeRes)

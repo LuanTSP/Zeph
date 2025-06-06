@@ -16,7 +16,7 @@ void declarePrintFunction(Enviroment& env) {
       } else if (a->type == ValueType::BOOLEAN_VALUE) {
         value += std::to_string(static_cast<BooleanValue*>(a)->value);
       } else if (a->type == ValueType::NULL_VALUE) {
-        continue;
+        value += "null";
       } else {
         Log::err("Unrecognized type ", a->type, " in print function");
       }
