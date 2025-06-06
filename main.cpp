@@ -3,33 +3,10 @@
 #include "include/parser.hpp"
 #include "include/interpreter.hpp"
 #include "include/enviroment.hpp"
+#include "include/builtinFunctions.hpp"
 #include <string>
 #include <vector>
 
-void declarePrintFunction(Enviroment& env) {
-  std::string fnName = "print"; // function name
-  
-  std::vector<std::string> params = {"toPrint"}; // parameters
-  std::vector<Statement* > body; // body
-
-  env.declareVariable(fnName, new FunctionValue(fnName, params, body, [](std::vector<RuntimeValue*> args) {
-    std::string value = "";
-    for (auto a : args) {
-      if (a->type == ValueType::STRING_VALUE) {
-        value += static_cast<StringValue*>(a)->value;
-      } else if (a->type == ValueType::NUMBER_VALUE) {
-        value += std::to_string(static_cast<NumberValue*>(a)->value);
-      } else if (a->type == ValueType::BOOLEAN_VALUE) {
-        value += std::to_string(static_cast<BooleanValue*>(a)->value);
-      } else if (a->type == ValueType::NULL_VALUE) {
-        continue;
-      } else {
-        Log::err("Unrecognized type ", a->type, " in print function");
-      }
-    }
-    Log::log(value);
-  }, env), true);
-}
 
 int main(int argc, char* argv[]) {
   // Get filepath
@@ -51,6 +28,7 @@ int main(int argc, char* argv[]) {
 
   env.declareVariable("x", new NumberValue(1), true);
   declarePrintFunction(env);
+  declareTypeofFunction(env);
   
   Interpreter interpreter = Interpreter();
   

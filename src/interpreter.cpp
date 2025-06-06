@@ -556,11 +556,32 @@ RuntimeValue* Interpreter::evaluateCallExpression(CallExpression* expr, Envirome
     args.push_back(evaluate(arg, env));
   }
 
+
+  // Return early if extCall is defined and returns a runtime value that is not null
+  if (function->extCall != nullptr) {
+    auto value = function->extCall(args);
+    if (value->type == ValueType::STRING_VALUE) {
+      auto cast = static_cast<StringValue*>(value);
+      return new StringValue(cast->value);
+    } else if (value->type == ValueType::NULL_VALUE) {
+      return new NullValue();
+    } else if (value->type == ValueType::NUMBER_VALUE) {
+      auto cast = static_cast<NumberValue*>(value);
+      return new NumberValue(cast->value);
+    } else if (value->type == ValueType::BOOLEAN_VALUE) {
+      auto cast = static_cast<BooleanValue*>(value);
+      return new BooleanValue(cast->value);
+    } else {
+      Log::err("Unsupported value type ", value->type, " returned by extnCall");
+    }
+  }
+
   // Create new function scope
   Enviroment localEnv(&function->env);
   for (size_t i = 0; i < function->params.size(); ++i) {
     localEnv.declareVariable(function->params[i], args[i], false);
   }
+
 
   RuntimeValue* returnValue = nullptr;
   for (auto stmt : function->body) {

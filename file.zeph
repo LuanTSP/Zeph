@@ -1,8 +1,13 @@
 def main () {
   let i = 0;
   while(i < 10) {
-    print(i); i = i + 1;
+    print(i); 
+    i = i + 1;
   }
+
+  return "teste"
 }
 
 main()
+
+typeof(print("teste"))

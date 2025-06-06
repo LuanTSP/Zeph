@@ -57,10 +57,10 @@ struct FunctionValue : RuntimeValue {
   public:
   std::string name;
   std::vector<std::string> params;
-  Enviroment& env;
   std::vector<Statement*> body;
-  std::function<void(std::vector<RuntimeValue*> args)> extCall = nullptr;
+  std::function<RuntimeValue* (std::vector<RuntimeValue*> args)> extCall = nullptr;
+  Enviroment& env;
   
-  FunctionValue(std::string& name, std::vector<std::string>& params, std::vector<Statement*>& body, std::function<void(std::vector<RuntimeValue*> args)> extCall, Enviroment& env) : RuntimeValue(ValueType::FUNCTION_VALUE), name(name), params(params), body(body), extCall(extCall), env(env) {}
+  FunctionValue(std::string& name, std::vector<std::string>& params, std::vector<Statement*>& body, std::function<RuntimeValue* (std::vector<RuntimeValue*> args)> extCall, Enviroment& env) : RuntimeValue(ValueType::FUNCTION_VALUE), name(name), params(params), body(body), extCall(extCall), env(env) {}
 };
 
