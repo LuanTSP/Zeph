@@ -13,6 +13,8 @@ enum NodeType {
   RETURN_STATEMENT,
   IF_STATEMENT,
   WHILE_STATEMENT,
+  BREAK_STATEMENT,
+  CONTINUE_STATEMENT,
   // Compound Expressions
   BINARY_EXPRESSION,
   CALL_EXPRESSION,
@@ -96,6 +98,18 @@ struct ReturnStatement : Statement {
   Expression* value = nullptr;
 
   ReturnStatement(Expression* value) : Statement(NodeType::RETURN_STATEMENT), value(value) {};
+};
+
+struct BreakStatement : Statement {
+  public:
+
+  BreakStatement() : Statement(NodeType::BREAK_STATEMENT) {};
+};
+
+struct ContinueStatement : Statement {
+  public:
+
+  ContinueStatement() : Statement(NodeType::CONTINUE_STATEMENT) {};
 };
 
 // EXPRESSIONS //

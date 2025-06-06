@@ -22,8 +22,10 @@ int main(int argc, char* argv[]) {
   Parser parser = Parser();
   Program program = parser.parse(filepath);
 
-  Log::printAST(program);
-  
+  // DEBUG
+  // Log::printAST(program);
+  // END DEBUG
+
   Enviroment env = Enviroment();
 
   env.declareVariable("x", new NumberValue(1), true);
@@ -33,7 +35,10 @@ int main(int argc, char* argv[]) {
   Interpreter interpreter = Interpreter();
   
   auto result = interpreter.evaluate(&program, env);
-  if (result) {
-    Log::printValue(result);
-  }
+  
+  // DEBUG
+  // if (result) {
+  //   Log::printValue(result);
+  // }
+  // END DEBUG
 }

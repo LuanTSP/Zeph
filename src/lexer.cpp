@@ -151,6 +151,10 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
         tokens.push_back(Token(TokenType::ELSE, ident, line));
       } else if (ident == "while") {
         tokens.push_back(Token(TokenType::WHILE, ident, line));
+      } else if (ident == "break") {
+        tokens.push_back(Token(TokenType::BREAK, ident, line));
+      } else if (ident == "continue") {
+        tokens.push_back(Token(TokenType::CONTINUE, ident, line));
       } else {
         tokens.push_back(Token(TokenType::IDENTIFIER, ident, line));
       }

@@ -1,13 +1,13 @@
-def main () {
+def main() {
   let i = 0;
-  while(i < 10) {
-    print(i); 
+  
+  while (i < 10) {
     i = i + 1;
+    continue;
+    i = 25
   }
 
-  return "teste"
+  return i
 }
 
-main()
-
-typeof(print("teste"))
+print(main());

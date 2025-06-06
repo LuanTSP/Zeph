@@ -98,10 +98,10 @@ Program Parser::parse(std::string& filepath) {
   this->tokens = lexer.tokenize(filepath);
 
   // DEBUG
-  Log::log("TOKENS");
-  for (auto token : tokens) {
-    Log::log("{", token.type, " ,", token.value, " ,", token.line, "}");
-  }
+  // Log::log("TOKENS");
+  // for (auto token : tokens) {
+  //   Log::log("{", token.type, " ,", token.value, " ,", token.line, "}");
+  // }
   // END DEBUG
 
   std::vector<Statement*> body;
@@ -265,6 +265,10 @@ Statement* Parser::parseStatement() {
     stmt = parseIfStatement();
   } else if (peak().type == TokenType::WHILE) { 
     stmt = parseWhileStatement();
+  } else if (peak().type == TokenType::BREAK) { 
+    stmt = parseBreakStatement();
+  } else if (peak().type == TokenType::CONTINUE) { 
+    stmt = parseContinueStatement();
   } else {
     stmt = parseExpression();
   }
@@ -276,6 +280,18 @@ Statement* Parser::parseStatement() {
   
   return stmt;
 };
+
+Statement* Parser::parseBreakStatement() {
+  eat();
+
+  return new BreakStatement();
+}
+
+Statement* Parser::parseContinueStatement() {
+  eat();
+
+  return new ContinueStatement();
+}
 
 Statement* Parser::parseWhileStatement() {
   eat(); // Eat while keyword

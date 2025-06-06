@@ -137,6 +137,22 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       return evaluateWhileStatement(whileStmt, env);
     }
 
+    case NodeType::BREAK_STATEMENT : {
+      auto breakStmt = dynamic_cast<BreakStatement*>(stmt);
+      if (!breakStmt) {
+        Log::err("Invalid cast to BreakStatement");
+      }
+      return new BreakValue();
+    }
+
+    case NodeType::CONTINUE_STATEMENT : {
+      auto contStmt = dynamic_cast<ContinueStatement*>(stmt);
+      if (!contStmt) {
+        Log::err("Invalid cast to ContinueStatement");
+      }
+      return new ContinueValue();
+    }
+
     default:
       Log::err("This node has not been setup for interpretation: ", stmt->type);
       return new NullValue();
@@ -169,7 +185,7 @@ RuntimeValue* Interpreter::evaluateWhileStatement(WhileStatement* whileStmt, Env
   }
 
   RuntimeValue* toReturn = nullptr;
-  bool gotReturnStmt = false;
+  bool breakLoop = false;
 
   while (shouldEvalBody) {
     for (auto stmt : whileStmt->body) {
@@ -177,12 +193,18 @@ RuntimeValue* Interpreter::evaluateWhileStatement(WhileStatement* whileStmt, Env
 
       if (value->type == ValueType::RETURN_VALUE) {
         toReturn = static_cast<ReturnValue*>(value);
-        gotReturnStmt = true;
+        breakLoop = true;
+        break;
+      } else if (value->type == ValueType::BREAK_VALUE) {
+        breakLoop = true;
+        break;
+      } else if (value->type == ValueType::CONTINUE_VALUE) {
+        // do not break the loop
         break;
       }
     }
 
-    if (gotReturnStmt) {
+    if (breakLoop) {
       break;
     }
 
@@ -240,16 +262,30 @@ RuntimeValue* Interpreter::evaluateIfStatement(IfStatement* ifStmt, Enviroment& 
   if (shouldEvalBody) {
     for (auto stmt : ifStmt->ifBody) {
       auto value = evaluate(stmt, env);
+      
       if (value->type == ValueType::RETURN_VALUE) {
         toReturn = static_cast<ReturnValue*>(value);
+        break;
+      } else if (value->type == ValueType::BREAK_VALUE) {
+        toReturn = static_cast<BreakValue*>(value);
+        break;
+      } else if (value->type == ValueType::CONTINUE_VALUE) {
+        toReturn = static_cast<ContinueValue*>(value);
         break;
       }
     }
   } else {
     for (auto stmt : ifStmt->elseBody) {
       auto value = evaluate(stmt, env);
+      
       if (value->type == ValueType::RETURN_VALUE) {
         toReturn = static_cast<ReturnValue*>(value);
+        break;
+      } else if (value->type == ValueType::BREAK_VALUE) {
+        toReturn = static_cast<BreakValue*>(value);
+        break;
+      } else if (value->type == ValueType::CONTINUE_VALUE) {
+        toReturn = static_cast<ContinueValue*>(value);
         break;
       }
     }

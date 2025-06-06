@@ -15,6 +15,8 @@ enum TokenType {
   IF,
   ELSE,
   WHILE,
+  BREAK,
+  CONTINUE,
   RETURN,
   NULL_TOKEN,
   BINARY_OP,

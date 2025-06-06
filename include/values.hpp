@@ -10,6 +10,8 @@ enum ValueType {
   RETURN_VALUE,
   BOOLEAN_VALUE,
   FUNCTION_VALUE,
+  BREAK_VALUE,
+  CONTINUE_VALUE,
 };
 
 class Enviroment;
@@ -62,5 +64,17 @@ struct FunctionValue : RuntimeValue {
   Enviroment& env;
   
   FunctionValue(std::string& name, std::vector<std::string>& params, std::vector<Statement*>& body, std::function<RuntimeValue* (std::vector<RuntimeValue*> args)> extCall, Enviroment& env) : RuntimeValue(ValueType::FUNCTION_VALUE), name(name), params(params), body(body), extCall(extCall), env(env) {}
+};
+
+struct BreakValue : RuntimeValue {
+  public:
+  
+  BreakValue() : RuntimeValue(ValueType::BREAK_VALUE) {};
+};
+
+struct ContinueValue : RuntimeValue {
+  public:
+  
+  ContinueValue() : RuntimeValue(ValueType::CONTINUE_VALUE) {};
 };
 
