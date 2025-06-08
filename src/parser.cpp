@@ -189,6 +189,8 @@ Expression* Parser::parsePrimary() {
 // MultiplicitaveExpr
 // AdditiveExpr
 // Comparison
+// 'and' expression
+// 'or' expression
 
 // COMPOUND EXPRESSIONS - result in values - binaryOps
 Expression* Parser::parseMultiplicativeExpression() {
@@ -202,7 +204,7 @@ Expression* Parser::parseMultiplicativeExpression() {
   return left;
 }
 
-// Handles addition and subtraction
+
 Expression* Parser::parseAdditiveExpression() {
   Expression* left = parseMultiplicativeExpression();
 
@@ -214,7 +216,7 @@ Expression* Parser::parseAdditiveExpression() {
   return left;
 }
 
-// Handles comparison operators
+
 Expression* Parser::parseComparisonExpression() {
   Expression* left = parseAdditiveExpression();
 
@@ -226,8 +228,32 @@ Expression* Parser::parseComparisonExpression() {
   return left;
 }
 
+Expression* Parser::parseAndExpression() {
+  Expression* left = parseComparisonExpression();
+
+  while (peak().type == TokenType::AND) {
+    std::string op = eat().value;
+    Expression* right = parseComparisonExpression();
+    left = new LogicalExpression(left, right, op);
+  }
+
+  return left;
+}
+
+Expression* Parser::parseOrExpression() {
+  Expression* left = parseAndExpression();
+
+  while (peak().type == TokenType::OR) {
+    std::string op = eat().value;
+    Expression* right = parseAndExpression();
+    left = new LogicalExpression(left, right, op);
+  }
+
+  return left;
+}
+
 Expression* Parser::parseExpression() {
-  return parseComparisonExpression();
+  return parseOrExpression();
 }
 
 Expression* Parser::parseCallExpression(Expression* caller) {

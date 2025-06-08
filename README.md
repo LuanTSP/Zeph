@@ -28,6 +28,7 @@ This opens up possibilities for rapid game prototyping or building complex inter
 - Builtin functions (print, typeof)
 - Control Flow (break, continue)
 - Conditionals (if, else)
+- Logical Expressions (and, or)
 - Loops (while)
 
 ### 🟡 Features planned for the near future

@@ -185,6 +185,21 @@ public:
         break;
       }
 
+      case NodeType::LOGICAL_EXPRESSION: {
+        auto logic = dynamic_cast<const LogicalExpression*>(node);
+        if (!logic) {
+          err("Invalid LogicalExpression node cast.");
+          return;
+        }
+        printIndent();
+        log("Logical Expression: ", logic->op, " {");
+        printAST(logic->lhs, indent + 1);
+        printAST(logic->rhs, indent + 1);
+        printIndent();
+        log("}");
+        break;
+      }
+
       default:
         printIndent();
         log("Unknown Node Type");

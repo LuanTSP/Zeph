@@ -19,6 +19,7 @@ enum NodeType {
   BINARY_EXPRESSION,
   CALL_EXPRESSION,
   COMPARISON_EXPRESSION,
+  LOGICAL_EXPRESSION,
   // Literal Expresisons
   NULL_LITERAL,
   NUMERIC_LITERAL,
@@ -173,4 +174,13 @@ struct ComparisonExpression : Expression {
   std::string op;
 
   ComparisonExpression(Expression* lhs, Expression* rhs, std::string op) : Expression(NodeType::COMPARISON_EXPRESSION), lhs(lhs), rhs(rhs), op(op) {};
+};
+
+struct LogicalExpression : Expression {
+  public:
+  std::string op;
+  Expression* lhs = nullptr;
+  Expression* rhs = nullptr;
+
+  LogicalExpression(Expression* lhs, Expression* rhs, std::string& op) : Expression(NodeType::LOGICAL_EXPRESSION), lhs(lhs), rhs(rhs), op(op) {};
 };

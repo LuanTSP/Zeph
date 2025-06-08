@@ -28,6 +28,8 @@ class Parser {
   Expression* parseComparisonExpression();
   Expression* parseAdditiveExpression();
   Expression* parseMultiplicativeExpression();
+  Expression* parseAndExpression();
+  Expression* parseOrExpression();
   Statement* parseStatement();
   Statement* parseReturnStatement();
   Statement* parseVarDeclaration();

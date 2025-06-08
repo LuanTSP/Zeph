@@ -20,6 +20,8 @@ enum TokenType {
   RETURN,
   NULL_TOKEN,
   BINARY_OP,
+  AND,
+  OR,
   UNARY_OP,
   OPEN_BRACE,
   CLOSE_BRACE,

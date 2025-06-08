@@ -155,6 +155,10 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
         tokens.push_back(Token(TokenType::BREAK, ident, line));
       } else if (ident == "continue") {
         tokens.push_back(Token(TokenType::CONTINUE, ident, line));
+      } else if (ident == "and") {
+        tokens.push_back(Token(TokenType::AND, ident, line));
+      } else if (ident == "or") {
+        tokens.push_back(Token(TokenType::OR, ident, line));
       } else {
         tokens.push_back(Token(TokenType::IDENTIFIER, ident, line));
       }

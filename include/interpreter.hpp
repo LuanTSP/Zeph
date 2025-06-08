@@ -17,6 +17,7 @@ public:
   RuntimeValue* evaluateFunctionDeclaration(FunctionDeclaration* decl, Enviroment& env);
   RuntimeValue* evaluateCallExpression(CallExpression* expr, Enviroment& env);
   RuntimeValue* evaluateComparisonExpression(ComparisonExpression* comp, Enviroment& env);
+  RuntimeValue* evaluateLogicalExpression(LogicalExpression* logic, Enviroment& env);
   RuntimeValue* evaluateVariableAssignment(VariableAssignment* assign, Enviroment& env);
   RuntimeValue* evaluateIfStatement(IfStatement* ifStmt, Enviroment& env);
   RuntimeValue* evaluateWhileStatement(WhileStatement* whileStmt, Enviroment& env);

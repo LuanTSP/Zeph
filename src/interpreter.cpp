@@ -153,10 +153,70 @@ RuntimeValue* Interpreter::evaluate(Statement* stmt, Enviroment& env) {
       return new ContinueValue();
     }
 
+    case NodeType::LOGICAL_EXPRESSION : {
+      auto logiExp = dynamic_cast<LogicalExpression*>(stmt);
+      if (!logiExp) {
+        Log::err("Invalid cast to LogicalExpression");
+      }
+      return evaluateLogicalExpression(logiExp, env);
+    }
+
     default:
       Log::err("This node has not been setup for interpretation: ", stmt->type);
       return new NullValue();
   }
+}
+
+bool evaluateLogicalExpressionNumeric(bool a, bool b, std::string& op) {
+  if (op == "or") {
+    return a || b;
+  } else if (op == "and") {
+    return a && b;
+  } else {
+    Log::err("Unrecognized logical operator ", op);
+    return false; // unrecheable 
+  }
+}
+
+RuntimeValue* Interpreter::evaluateLogicalExpression(LogicalExpression* logic, Enviroment& env) {
+  auto lhsV = evaluate(logic->lhs, env);
+  auto rhsV = evaluate(logic->rhs, env);
+
+  bool result;
+  if (lhsV->type == ValueType::BOOLEAN_VALUE && rhsV->type == ValueType::BOOLEAN_VALUE) {
+    result = evaluateLogicalExpressionNumeric(
+      static_cast<BooleanValue*>(lhsV)->value,
+      static_cast<BooleanValue*>(rhsV)->value,
+      logic->op
+    );
+  } else if (lhsV->type == ValueType::NUMBER_VALUE && rhsV->type == ValueType::NUMBER_VALUE) {
+    bool a = false;
+    bool b = false;
+
+    if (static_cast<NumberValue*>(lhsV)->value == 1) a = true;
+    if (static_cast<NumberValue*>(rhsV)->value == 1) b = true;
+    
+    result = evaluateLogicalExpressionNumeric(a, b, logic->op);
+  } else if (lhsV->type == ValueType::NUMBER_VALUE && rhsV->type == ValueType::BOOLEAN_VALUE) {
+    bool a = false;
+    bool b = static_cast<NumberValue*>(rhsV)->value;
+
+    if (static_cast<NumberValue*>(lhsV)->value == 1) a = true;
+    
+    result = evaluateLogicalExpressionNumeric(a, b, logic->op);
+  } else if (lhsV->type == ValueType::BOOLEAN_VALUE && rhsV->type == ValueType::NUMBER_VALUE) {
+    bool a = static_cast<NumberValue*>(lhsV)->value;
+    bool b = false;
+
+    if (static_cast<NumberValue*>(rhsV)->value == 1) b = true;
+    
+    result = evaluateLogicalExpressionNumeric(a, b, logic->op);
+  } else {
+    Log::err("Unsupported logical operation between ", lhsV->type, " and ", rhsV->type);
+  }
+
+  
+  return new BooleanValue(result);
 }
 
 RuntimeValue* Interpreter::evaluateWhileStatement(WhileStatement* whileStmt, Enviroment& env) {
@@ -556,10 +616,17 @@ float Interpreter::calculateNumericBinaryExpression(float left, float right, con
   else if (op == "-") return left - right;
   else if (op == "*") return left * right;
   else if (op == "/") {
-    if (right == 0.0f) {
+    if (right == 0) {
       Log::err("Division by zero");
     }
+
     return left / right;
+  } else if (op == "%") {
+    if (right == 0) {
+      Log::err("Division by zero");
+    }
+    // Get only the integer part
+    return (int)left % (int)right; 
   }
 
   Log::err("Unknown numeric operator: " + op);
