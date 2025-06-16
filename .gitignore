@@ -2,4 +2,5 @@ build/*
 .vscode
 language.txt
 teste.js
+zeph.svg
 *.zeph
