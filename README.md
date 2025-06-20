@@ -1,12 +1,10 @@
-# Zeph Programming Language <img src="./zeph.svg" width=50px>
+# Zeph Programming Language
 
-<div style="display: flex; align-items: center">
-<img src="./zeph.svg" width=50px> A Simple Programming Language made for Game Development.
-</div>
+A simple programmig language made in c++
 
 ## What is the zeph programming language ?
 
-**Zeph** is a modern programming language written in **C++**, designed to be powerful yet beginner-friendly. The main purpose of the zeph programming language is to operate as a game development scripting language offering seamless integration with my custom game engine. Zeph is an interpreted language as well as a compiled one. As of now just the interpreter (posea) is implemented and the compiler (hades) will be implemented in the future.
+**Zeph** is a modern programming language written in **C++**, designed to be powerful yet beginner-friendly. The main purpose of the zeph programming language is to operate as a game development scripting language offering seamless integration with a custom custom game engine developd by me in order for fast and "write and play" game development. Zeph is an interpreted language as well as a compiled one. As of now just the interpreter (posea) is implemented and the compiler (hades) will be implemented in the future.
 
 ## 🟨 Key Features to Develop
 
@@ -19,21 +17,24 @@ Zeph will support integration with **a custom C++ game engine**, making it easy 
 - Handle input, rendering, and physics  
 - Script game logic quickly and efficiently  
 
-This opens up possibilities for rapid game prototyping or building complex interactive systems using Zeph’s concise syntax.
+This opens up possibilities for rapid game prototyping or building complex interactive systems using Zeph
 
-### 🟢 Features implemented
-- Variable declarations (let x = 1, const x, const y = "string")
-- Variable assignments (x = 1)
-- User defined functions (def main(a, b) { #code })
-- Builtin functions (print, typeof)
-- Control Flow (break, continue)
-- Conditionals (if, else)
-- Logical Expressions (and, or)
-- Loops (while)
+### 🟢 Zeph features
+
+As of now in the initial stages of development, zeph is maturing and gaining quality of life features such as:  
+
+- Variable declarations
+- Variable assignments
+- User defined functions
+- Builtin functions
+- Control flow
+- Conditionals
+- Logical expressions
+- While loops
 
 ### 🟡 Features planned for the near future
-- Loops (for)
-- Objects (javascript like)
+- For loops
+- Objects (javascript like objects and JSON support)
 
 ## ▼ Instalation
 
