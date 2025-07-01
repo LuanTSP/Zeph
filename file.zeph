@@ -1,1 +1,18 @@
-print(1 + "teste")
+# This is a demo of the Zeph programming language
+# This code feature some of the basic functions of zeph and proves that it can be
+# used as a real programming language. The example below shows and simple (and dumb)
+# implementation of code that generates the fibonacci sequence.
+
+def _fib_recursive(n) {
+  if (n == 0 or n == 1) {
+    return 1;
+  } else {
+    return _fib_recursive(n-2) + _fib_recursive(n-1);
+  }
+}
+
+def main() {
+  print(_fib_recursive(5));
+}
+
+main()

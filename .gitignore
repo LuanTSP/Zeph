@@ -3,4 +3,6 @@ build/*
 language.txt
 teste.js
 zeph.svg
+file.zeph
 *.zeph
+compile_run.sh

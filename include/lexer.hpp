@@ -6,6 +6,7 @@
 class Lexer {
   public:
   std::vector<Token> tokens;
+  
   Lexer();
   std::vector<Token> tokenize(std::string filepath);
 };

@@ -122,12 +122,12 @@ std::vector<Token> Lexer::tokenize(std::string filepath) {
 
       tokens.push_back(Token(TokenType::NUMBER, number, line));
 
-    } else if (std::isalpha(c)) {
+    } else if (std::isalpha(c) || c == '_') { // Check for '_' character at identifier beginning
       // Make Identifiers and keywords
       std::string ident;
       ident += c;
 
-      while (file.peek() != EOF && std::isalnum(file.peek())) {
+      while (file.peek() != EOF && (std::isalnum(file.peek()) || file.peek() == '_')) {
         file.get(c);
         ident += c;
       }
